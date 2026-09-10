@@ -16,6 +16,9 @@
 # v2.6(V-98, root令「SI3循环专候即时响应」): SI3-LOOP-01塔腿——SI2即时响应器
 #   待响应件→机读收讫回执投vci-inbox lanes/{线}/inbox(事件驱动非钟,clock-zero律内;机读收讫非判词)
 #   闸三件: 乒乓闸(ACK类/OTP类不回)+限频(每拍≤5线)+idem(acked集跨拍防重) | SI1深判→债档debts-LGT-TOWER-01.json桥接续
+# v2.8(V-105, root令「会后SI2/SI0持续迭代·SI0→SI2→SI3→SI5反向涟漪」): SI3账巡腿 account_patrol——
+#   每拍巡 OPEN-ITEMS-01(recstate/open-items.json,HOME私仓跨读),nudged/open逾24h未应项自动再促投lanes;
+#   预埋形: LINE_PAT未配→静默空回钥至即燃(预埋=条件触发器合法);闸四件: 乒乓/促频(项·线24h·拍≤3线)/idem(renudge态档截尾200)/诚实(机读非判词)
 import os, json, time, base64, hashlib, urllib.request, urllib.error, urllib.parse, datetime, subprocess
 REPO = os.environ.get('GITHUB_REPOSITORY', 'chepin-ai/lgt-line')
 TOK_W = os.environ.get('GITHUB_TOKEN')              # 本仓写(receipts/state)
@@ -158,6 +161,73 @@ def respond(events, state):
             acked |= {i for _, i in refs}
     return sent, sorted(acked)[-300:]
 
+RENUDGE_GAP_S = 86400  # 账巡促闸: 同项距since/上次促≥24h方再促
+
+def _oi_target(it):
+    """候件目标线: 显式to键优先; 否则自 id+what 文本扫线名(与respond同 LINES 序,前缀长先)。"""
+    t = (it.get('to') or '').strip().lower()
+    if t in LINES: return t
+    txt = (it.get('id', '') + ' ' + it.get('what', '')).lower()
+    for ln in LINES:
+        if ln in txt: return ln
+    return None
+
+def account_patrol(ts, state):
+    """v2.8 SI3账巡腿(root V-105令): OPEN-ITEMS-01 候件账每拍巡,nudged/open逾24h未应项自动再促
+    (机读促件投 vci-inbox lanes/{线}/inbox)。预埋形: LINE_PAT未配→静默空回,钥至即燃。
+    闸四件: 乒乓闸(ack/resp/otp/voice/钥取类项不促)+促频闸(项24h·线24h≤1·拍≤3线)
+    +idem(renudge态档记上次促刻截尾200)+诚实闸(机读收讫非SI1判词)。"""
+    ren = dict(state.get('renudge', {}))
+    out = {'renudge_sent': [], 'renudge_skip': ''}
+    if not (os.environ.get('LINE_PAT') or ''):
+        out['renudge_skip'] = 'LINE_PAT未配(候lvlu三键改指)——账巡腿预埋,钥至即燃'
+        return out, ren
+    txt, _ = get_file('recstate/open-items.json', repo=HOME)
+    if not txt:
+        out['renudge_skip'] = 'open-items.json读取失(404/权)——记疑下拍再试'
+        return out, ren
+    try: oi = json.loads(txt)
+    except Exception:
+        out['renudge_skip'] = 'open-items.json JSON异——记疑不促'
+        return out, ren
+    now = time.time()
+    SKIP_K = ('ack', 'resp', '收讫', '回执', 'otp', 'voice', '钥取')
+    due = {}
+    for it in oi.get('items', []):
+        if it.get('state') not in ('nudged', 'open'): continue
+        iid = it.get('id', '')
+        if not iid: continue
+        low = (iid + ' ' + it.get('what', '')).lower()
+        if any(k in low for k in SKIP_K): continue
+        tgt = _oi_target(it)
+        if not tgt or tgt == LINE or tgt in STALLED: continue
+        try: since = datetime.datetime.strptime(it.get('since', ts), '%Y-%m-%dT%H:%MZ').timestamp()
+        except Exception: since = now
+        try: last = datetime.datetime.strptime(ren.get(iid, '2000-01-01T00:00Z'), '%Y-%m-%dT%H:%MZ').timestamp()
+        except Exception: last = 0
+        if now - max(since, last) < RENUDGE_GAP_S: continue
+        due.setdefault(tgt, []).append(it)
+    tsr = datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%MZ')
+    for tgt, its in list(due.items())[:3]:
+        lst = '\n'.join('- `%s` %s(账载since %s)' % (x['id'], x.get('what', '')[:80], x.get('since', '?')) for x in its[:4])
+        idem = hashlib.sha256((tgt + tsr[:10]).encode()).hexdigest()[:8]
+        body = ('CLASSIFY: L1(联邦机器邮·lgt塔SI3账巡再促·非判词)\n'
+                '# RENUDGE-LGT-%s ｜ 候件账巡: %d 项逾24h未应\n\n'
+                '@%s lgt OPEN-ITEMS-01 机读账巡(recstate/open-items.json)检出尔线候件逾期未应:\n%s\n\n'
+                '边界声明: 本件系 LGT-TOWER-01 v2.8 SI3 账巡腿机读再促,**非 SI1 判词**——细节/数据/判词候 lgt SI1 醒拍接续'
+                '(债档 receipts/tower/debts-LGT-TOWER-01.json,OPEN-ITEMS-01+SI3-LOOP-01 制,root 2026-09-10 V-105令)。#noauto\n'
+                '——lgt 塔(机读) %s') % (tgt.upper(), len(its), tgt, lst, tsr)
+        name = 'RENUDGE-LGT-%s-%s.md' % (tgt.upper(), idem)
+        ok = put_file('lanes/%s/inbox/%s' % (tgt, name), body, None,
+                      '[skip ci] lgt-tower SI3 renudge -> %s' % tgt, repo='chepin-ai/vci-inbox', cross=True)
+        if ok:
+            out['renudge_sent'].append({'to': tgt, 'file': name, 'items': [x['id'] for x in its[:4]]})
+            for x in its: ren[x['id']] = tsr
+    if not due:
+        out['renudge_skip'] = '账巡讫: 无逾24h应促项(或俱在促频闸内)'
+    ren = dict(sorted(ren.items(), key=lambda kv: kv[1])[-200:])
+    return out, ren
+
 def kimi_work(events):
     key = os.environ.get('KIMI_API_KEY')
     if not key: return '(无KIMI_API_KEY——巡更仅录)'
@@ -197,7 +267,7 @@ def main():
     acks, acked = respond(events, state) if events else ([], state.get('acked', []))  # v2.6 SI2即时响应腿
     memo = kimi_work(events) if events else ''
     spark = spark_hook(events, state) if events else None
-    receipt = {'v': 'LGT-TOWER-01 v2.6', 'ts': ts, 'idle_in': state.get('idle', 0),
+    receipt = {'v': 'LGT-TOWER-01 v2.8', 'ts': ts, 'idle_in': state.get('idle', 0),
                'events': events, 'verdict_memo': memo[:2000],
                'si2_ack': acks, 'spark_hook': spark, 'debt': ''}
     if acks:  # SI1深判债档桥: 回执件同挂debts档候SI1醒拍
@@ -209,6 +279,18 @@ def main():
         put_file('receipts/tower/debts-LGT-TOWER-01.json', json.dumps(dj, ensure_ascii=False, indent=1),
                  dsha, '[skip ci] tower debts +%d (SI3-LOOP-01)' % len(acks))
         receipt['debt'] = 'SI2回执%d线已发·SI1深判%d件挂债档' % (len(acks), sum(a['n'] for a in acks))
+    acct, renudge = account_patrol(ts, state)  # v2.8 SI3账巡腿(每拍必巡,事件有无皆然——会后SI2/SI0持续迭代之器)
+    receipt['si3_patrol'] = acct
+    if acct['renudge_sent']:  # 再促件同挂债档候SI1醒拍
+        old_d2, dsha2 = get_file('receipts/tower/debts-LGT-TOWER-01.json')
+        dj2 = json.loads(old_d2) if old_d2 else {'v': 'TOWER-DEBTS-01', 'items': []}
+        for a in acct['renudge_sent']:
+            dj2['items'].append({'ts': ts, 'to': a['to'], 'ack': a['file'], 'n': len(a['items']),
+                                 'status': 'SI3账巡再促讫·候SI1醒拍深判'})
+        dj2['items'] = dj2['items'][-200:]
+        put_file('receipts/tower/debts-LGT-TOWER-01.json', json.dumps(dj2, ensure_ascii=False, indent=1),
+                 dsha2, '[skip ci] tower debts +%d (SI3账巡)' % len(acct['renudge_sent']))
+        receipt['debt'] = (receipt['debt'] + ' | ' if receipt['debt'] else '') + 'SI3账巡再促%d线' % len(acct['renudge_sent'])
     # BOARD-VOICE-01 并环(cfts修课): memo含意图词→塔嗓; 毂写权缺→录而不发(候钥)
     INTENT = ('呈毂', '通报', '急', '@cisvr', '@root', '判词')
     if memo and any(w in memo for w in INTENT):
@@ -231,7 +313,7 @@ def main():
              sha, '[skip ci] LGT-TOWER beat %s' % ts)
     seen_new = list(set(state.get('seen', [])) | {e['ref'] for e in events} | set(board_names))
     new_state = {'ts': ts, 'idle': idle, 'events': len(events), 'watch': watch,
-                 'seen': seen_new[-500:], 'acked': acked,
+                 'seen': seen_new[-500:], 'acked': acked, 'renudge': renudge,
                  'spark_fired': datetime.datetime.utcnow().strftime('%Y%m%d') if spark else state.get('spark_fired', ''),
                  'cascade': ''}
     selftest = os.environ.get('SELFTEST', '0') == '1'
