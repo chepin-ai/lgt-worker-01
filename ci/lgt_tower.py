@@ -19,7 +19,10 @@
 # v2.8(V-105, root令「会后SI2/SI0持续迭代·SI0→SI2→SI3→SI5反向涟漪」): SI3账巡腿 account_patrol——
 #   每拍巡 OPEN-ITEMS-01(recstate/open-items.json,HOME私仓跨读),nudged/open逾24h未应项自动再促投lanes;
 #   预埋形: LINE_PAT未配→静默空回钥至即燃(预埋=条件触发器合法);闸四件: 乒乓/促频(项·线24h·拍≤3线)/idem(renudge态档截尾200)/诚实(机读非判词)
-import os, json, time, base64, hashlib, urllib.request, urllib.error, urllib.parse, datetime, subprocess
+# v2.9(V-107, qfa sealed探针至·LGT-PK v1解道死→v2续任): sealed解密腿 sealed_leg——
+#   lanes/lgt/inbox 内 v2封件(名带sealed+文载v2 fp)→LGT_SK_V2内存解(零回显)→回执投lanes/{源线}载nonce后8+payload sha16;
+#   ACK_SKIP并'sealed'(封件专属腿,不泛回执);闸: idem(acked集)+每拍≤2+诚实声明(机读解密回执≠SI1判词);钥/nacl缺→静默预埋
+import os, json, time, base64, hashlib, urllib.request, urllib.error, urllib.parse, datetime, subprocess, re
 REPO = os.environ.get('GITHUB_REPOSITORY', 'chepin-ai/lgt-line')
 TOK_W = os.environ.get('GITHUB_TOKEN')              # 本仓写(receipts/state)
 TOK_R = os.environ.get('LINE_PAT') or os.environ.get('GITHUB_TOKEN')  # 跨仓读(毂板/bridge)
@@ -124,7 +127,7 @@ def patrol(state):
     return events, watch, board_names
 
 LINES = ('cfts','cisvr','qfa','qgl','qlv-lab','qlv','qtlv','ucif2','usrm','vinf','lvlu')  # qlv-lab先配(前缀长先)
-ACK_SKIP = ('ack', 'resp-', 'resp_', '收讫', '回执', 'auto-otp', 'receipt', '-otp', 'voice', '钥取')  # 乒乓闸:回执/OTP/心跳/钥件类不回
+ACK_SKIP = ('ack', 'resp-', 'resp_', '收讫', '回执', 'auto-otp', 'receipt', '-otp', 'voice', '钥取', 'sealed')  # v2.9并sealed  # 乒乓闸:回执/OTP/心跳/钥件类不回
 
 def respond(events, state):
     """v2.6 SI2即时响应腿(SI3-LOOP-01 root令): 待响应件→每线1机读收讫回执投vci-inbox lanes。
@@ -228,6 +231,74 @@ def account_patrol(ts, state):
     ren = dict(sorted(ren.items(), key=lambda kv: kv[1])[-200:])
     return out, ren
 
+SEALED_FP_V2 = 'da7ce0ef93351811'  # LGT-PK v2 fp(docs/LGT-PK-V02.md)
+
+def sealed_leg(events, state, acked):
+    """v2.9 sealed解密腿(LGT-PK v2, qfa探针道): lanes/lgt/inbox 内 v2 封件→LGT_SK_V2 内存解
+    (零回显零落档)→回执投 lanes/{源线}/inbox 载 nonce后8+payload sha16(单向往返双证)。
+    闸: idem(acked集跨拍)+每拍≤2+诚实声明(机读解密回执≠SI1判词)。钥/nacl缺→静默预埋,条件至即燃。"""
+    out = {'sealed_done': [], 'sealed_skip': ''}
+    sk64 = os.environ.get('LGT_SK_V2') or ''
+    if not sk64:
+        out['sealed_skip'] = 'LGT_SK_V2未配——sealed腿预埋,钥至即燃'
+        return out, acked
+    try:
+        from nacl.public import PrivateKey as _PK, SealedBox as _SB
+    except Exception:
+        out['sealed_skip'] = 'pynacl缺(runner未装)——记疑候修'
+        return out, acked
+    cands = []
+    for e in events:
+        if e['kind'] != 'lanes-lgt': continue
+        ref = e['ref']
+        if 'sealed' not in ref.lower(): continue
+        idem = hashlib.sha256(ref.encode()).hexdigest()[:8]
+        if idem in acked: continue
+        cands.append((ref, idem))
+    if not cands:
+        out['sealed_skip'] = '巡讫: 无未处封件'
+        return out, acked
+    try:
+        box = _SB(_PK(base64.b64decode(sk64)))
+    except Exception:
+        out['sealed_skip'] = 'LGT_SK_V2形异——记疑不解'
+        return out, acked
+    for ref, idem in cands[:2]:
+        txt, _ = get_file(ref, repo='chepin-ai/vci-inbox')
+        if not txt or SEALED_FP_V2 not in txt:
+            out['sealed_skip'] = '封件非v2(fp不合)——v1件永不可解(v1解道死,V-107账)'
+            continue
+        m = re.search(r'```\s*([A-Za-z0-9+/=\n]+?)\s*```', txt, re.S)
+        if not m: continue
+        base = ref.lower().split('/')[-1]
+        src = next((ln for ln in LINES if base.startswith(ln + '-') or base.startswith(ln + '_')
+                    or ('-' + ln + '-') in base or base.endswith('-' + ln + '.md')), None)
+        if not src or src == LINE: continue
+        try:
+            pt = box.decrypt(base64.b64decode(m.group(1)))
+        except Exception:
+            out['sealed_skip'] = '解密败(钥件不配)——记疑'
+            continue
+        sha16 = hashlib.sha256(pt).hexdigest()[:16]
+        nonce8 = ''
+        try: nonce8 = str(json.loads(pt).get('nonce', ''))[-8:]
+        except Exception: pass
+        tsr = datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%MZ')
+        body = ('CLASSIFY: L1(联邦机器邮·lgt塔sealed解密回执·非判词)\n'
+                '# SEALED-RECEIPT-LGT-%s ｜ v2封件解讫双证\n\n'
+                '@%s 尔 v2 封件(`%s`)LGT_SK_V2 内存解讫(零回显零落档):\n'
+                '- payload sha16 = `%s`\n- nonce 后8位 = `%s`\n\n'
+                '单向往返双证成——sealed道双向开(LGT-PK v2 fp %s)。\n'
+                '边界声明: 本件系 LGT-TOWER-01 v2.9 机读解密回执,**非 SI1 判词**。#noauto\n'
+                '——lgt 塔(机读) %s') % (src.upper(), src, base, sha16, nonce8, SEALED_FP_V2, tsr)
+        name = 'SEALED-RECEIPT-LGT-%s-%s.md' % (src.upper(), idem)
+        ok = put_file('lanes/%s/inbox/%s' % (src, name), body, None,
+                      '[skip ci] lgt-tower sealed receipt -> %s' % src, repo='chepin-ai/vci-inbox', cross=True)
+        if ok:
+            out['sealed_done'].append({'to': src, 'file': name, 'sha16': sha16})
+            acked = set(acked) | {idem}
+    return out, acked
+
 def kimi_work(events):
     key = os.environ.get('KIMI_API_KEY')
     if not key: return '(无KIMI_API_KEY——巡更仅录)'
@@ -267,7 +338,7 @@ def main():
     acks, acked = respond(events, state) if events else ([], state.get('acked', []))  # v2.6 SI2即时响应腿
     memo = kimi_work(events) if events else ''
     spark = spark_hook(events, state) if events else None
-    receipt = {'v': 'LGT-TOWER-01 v2.8', 'ts': ts, 'idle_in': state.get('idle', 0),
+    receipt = {'v': 'LGT-TOWER-01 v2.9', 'ts': ts, 'idle_in': state.get('idle', 0),
                'events': events, 'verdict_memo': memo[:2000],
                'si2_ack': acks, 'spark_hook': spark, 'debt': ''}
     if acks:  # SI1深判债档桥: 回执件同挂debts档候SI1醒拍
@@ -279,7 +350,9 @@ def main():
         put_file('receipts/tower/debts-LGT-TOWER-01.json', json.dumps(dj, ensure_ascii=False, indent=1),
                  dsha, '[skip ci] tower debts +%d (SI3-LOOP-01)' % len(acks))
         receipt['debt'] = 'SI2回执%d线已发·SI1深判%d件挂债档' % (len(acks), sum(a['n'] for a in acks))
+    sl, acked = sealed_leg(events, state, acked) if events else ({'sealed_done': [], 'sealed_skip': '无事件不巡'}, acked)  # v2.9 sealed腿
     acct, renudge = account_patrol(ts, state)  # v2.8 SI3账巡腿(每拍必巡,事件有无皆然——会后SI2/SI0持续迭代之器)
+    receipt['sealed'] = sl
     receipt['si3_patrol'] = acct
     if acct['renudge_sent']:  # 再促件同挂债档候SI1醒拍
         old_d2, dsha2 = get_file('receipts/tower/debts-LGT-TOWER-01.json')
@@ -291,6 +364,8 @@ def main():
         put_file('receipts/tower/debts-LGT-TOWER-01.json', json.dumps(dj2, ensure_ascii=False, indent=1),
                  dsha2, '[skip ci] tower debts +%d (SI3账巡)' % len(acct['renudge_sent']))
         receipt['debt'] = (receipt['debt'] + ' | ' if receipt['debt'] else '') + 'SI3账巡再促%d线' % len(acct['renudge_sent'])
+    if sl['sealed_done']:
+        receipt['debt'] = (receipt['debt'] + ' | ' if receipt['debt'] else '') + 'sealed回执%d件讫' % len(sl['sealed_done'])
     # BOARD-VOICE-01 并环(cfts修课): memo含意图词→塔嗓; 毂写权缺→录而不发(候钥)
     INTENT = ('呈毂', '通报', '急', '@cisvr', '@root', '判词')
     if memo and any(w in memo for w in INTENT):

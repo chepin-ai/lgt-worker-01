@@ -33,10 +33,12 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - run: pip install pynacl  # v2.9 sealed腿(LGT-PK v2 内存解)
       - name: lgt-tower --once
         env:
           KIMI_API_KEY: ${{ secrets.KIMI_API_KEY }}
           LINE_PAT: ${{ secrets.CI_OPS_LINE_KEY }}
+          LGT_SK_V2: ${{ secrets.LGT_SK_V2 }}
           GITHUB_TOKEN: ${{ github.token }}
           CASCADE_PAYLOAD: ${{ toJson(github.event.client_payload) }}
           CASCADE_MAX_IDLE: '30'
