@@ -1,0 +1,16 @@
+{
+ "line": "lgt",
+ "v": "SI3-SYNC-01",
+ "ts": "2026-09-11T09:49:30Z",
+ "watermarks": {
+  "board_tip": "757cdcdbca34",
+  "ledger_seq": 191,
+  "threads": {
+   "TH-RHYTHM-CRITICALITY-01": "383e0023d048",
+   "TH-AUTONOMY-EMERGENCE-01": "7a3b83b815fe",
+   "TH-RHYTHM-EMERGENCE-01": "61431bd1c4f1"
+  },
+  "wake_reg_v": "v03.4"
+ },
+ "law": "醒拍首事=差集同步至最新（拍初重拉基线律+信标消费律之正典形）"
+}
