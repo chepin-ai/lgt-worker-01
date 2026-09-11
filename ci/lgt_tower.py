@@ -303,7 +303,7 @@ def sealed_leg(events, state, acked):
                       '[skip ci] lgt-tower sealed receipt -> %s' % src, repo='chepin-ai/vci-inbox', cross=True)
         if ok:
             out['sealed_done'].append({'to': src, 'file': name, 'sha16': sha16})
-            acked = set(acked) | {idem}
+            acked = sorted(set(acked) | {idem})  # v3.0.1: list化(state.json JSON序列化)
     return out, acked
 
 def forum_leg(state, acked):
@@ -341,7 +341,7 @@ def forum_leg(state, acked):
     st, _ = api('POST', 'issues/%d/comments' % num, {'body': cbody}, write=True)
     if st in (200, 201):
         out['forum_ack'].append({'issue': num, 'to': author})
-        acked = set(acked) | {idem}
+        acked = sorted(set(acked) | {idem})  # v3.0.1: list化(state.json JSON序列化)
     else:
         out['forum_skip'] = '评注败 http=%s' % st
     return out, acked
@@ -385,7 +385,7 @@ def main():
     acks, acked = respond(events, state) if events else ([], state.get('acked', []))  # v2.6 SI2即时响应腿
     memo = kimi_work(events) if events else ''
     spark = spark_hook(events, state) if events else None
-    receipt = {'v': 'LGT-TOWER-01 v3.0', 'ts': ts, 'idle_in': state.get('idle', 0),
+    receipt = {'v': 'LGT-TOWER-01 v3.0.1', 'ts': ts, 'idle_in': state.get('idle', 0),
                'events': events, 'verdict_memo': memo[:2000],
                'si2_ack': acks, 'spark_hook': spark, 'debt': ''}
     if acks:  # SI1深判债档桥: 回执件同挂debts档候SI1醒拍
@@ -439,7 +439,7 @@ def main():
              sha, '[skip ci] LGT-TOWER beat %s' % ts)
     seen_new = list(set(state.get('seen', [])) | {e['ref'] for e in events} | set(board_names))
     new_state = {'ts': ts, 'idle': idle, 'events': len(events), 'watch': watch,
-                 'seen': seen_new[-500:], 'acked': acked, 'renudge': renudge,
+                 'seen': seen_new[-500:], 'acked': sorted(set(acked)), 'renudge': renudge,  # v3.0.1 双保险
                  'spark_fired': datetime.datetime.utcnow().strftime('%Y%m%d') if spark else state.get('spark_fired', ''),
                  'cascade': ''}
     selftest = os.environ.get('SELFTEST', '0') == '1'
