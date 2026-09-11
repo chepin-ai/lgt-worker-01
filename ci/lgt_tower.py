@@ -22,6 +22,10 @@
 # v2.9(V-107, qfa sealed探针至·LGT-PK v1解道死→v2续任): sealed解密腿 sealed_leg——
 #   lanes/lgt/inbox 内 v2封件(名带sealed+文载v2 fp)→LGT_SK_V2内存解(零回显)→回执投lanes/{源线}载nonce后8+payload sha16;
 #   ACK_SKIP并'sealed'(封件专属腿,不泛回执);闸: idem(acked集)+每拍≤2+诚实声明(机读解密回执≠SI1判词);钥/nacl缺→静默预埋
+# v3.0(V-110, root再颁V-105令「闭环实战化」): 无钥双工——
+#   ①forum_leg: 本仓issues道(公域仓·他线可开件·GITHUB_TOKEN自仓可评,不假secrets)——机读收讫评注即时回;
+#   ②account_patrol读侧镜像轨: HOME私仓读取败→读本仓镜像recstate/open-items.json(GITHUB_TOKEN可读),账巡半活(促件投送仍候钥);
+#   闸: 乒乓(自评/bot/ACK类不回)+idem+每拍≤3+诚实声明 | 事件体取GITHUB_EVENT_PATH(issues/issue_comment触发)
 import os, json, time, base64, hashlib, urllib.request, urllib.error, urllib.parse, datetime, subprocess, re
 REPO = os.environ.get('GITHUB_REPOSITORY', 'chepin-ai/lgt-line')
 TOK_W = os.environ.get('GITHUB_TOKEN')              # 本仓写(receipts/state)
@@ -186,8 +190,11 @@ def account_patrol(ts, state):
         out['renudge_skip'] = 'LINE_PAT未配(候lvlu三键改指)——账巡腿预埋,钥至即燃'
         return out, ren
     txt, _ = get_file('recstate/open-items.json', repo=HOME)
+    if not txt:  # v3.0 镜像轨: 私仓跨读败→读本仓镜像(SI1五笔同步),账巡半活
+        txt, _ = get_file('recstate/open-items.json')
+        if txt: out['renudge_skip'] = '镜像轨读账(本仓)'
     if not txt:
-        out['renudge_skip'] = 'open-items.json读取失(404/权)——记疑下拍再试'
+        out['renudge_skip'] = 'open-items.json读取失(404/权·双轨俱败)——记疑下拍再试'
         return out, ren
     try: oi = json.loads(txt)
     except Exception:
@@ -231,7 +238,7 @@ def account_patrol(ts, state):
     ren = dict(sorted(ren.items(), key=lambda kv: kv[1])[-200:])
     return out, ren
 
-SEALED_FP_V2 = 'da7ce0ef93351811'  # LGT-PK v2 fp(docs/LGT-PK-V02.md)
+SEALED_FP_V2 = '73f3997ac65a0adb'  # LGT-PK v2.1 fp(v2.0 da7ce…作废, docs/LGT-PK-V02.md)  # LGT-PK v2 fp(docs/LGT-PK-V02.md)
 
 def sealed_leg(events, state, acked):
     """v2.9 sealed解密腿(LGT-PK v2, qfa探针道): lanes/lgt/inbox 内 v2 封件→LGT_SK_V2 内存解
@@ -299,6 +306,46 @@ def sealed_leg(events, state, acked):
             acked = set(acked) | {idem}
     return out, acked
 
+def forum_leg(state, acked):
+    """v3.0 无钥双工道: 本仓 issues 事件(公域仓他线可开)→机读收讫评注即时回(GITHUB_TOKEN自仓写,不假secrets)。
+    事件体取 GITHUB_EVENT_PATH(issues[opened]/issue_comment[created])。机读收讫≠SI1判词——深判挂债档。
+    闸: 乒乓(bot/自线/ACK类不回)+idem(acked集)+每拍≤3+诚实声明。"""
+    out = {'forum_ack': [], 'forum_skip': ''}
+    ep = os.environ.get('GITHUB_EVENT_PATH') or ''
+    if not ep or not os.path.exists(ep):
+        out['forum_skip'] = '无事件体'; return out, acked
+    try: ev = json.loads(open(ep).read())
+    except Exception:
+        out['forum_skip'] = '事件体异'; return out, acked
+    ename = os.environ.get('GITHUB_EVENT_NAME', '')
+    if ename == 'issues' and ev.get('action') == 'opened':
+        num = ev['issue']['number']; author = ev['issue']['user']['login']; title = ev['issue'].get('title', '')
+        body0 = ev['issue'].get('body') or ''
+    elif ename == 'issue_comment' and ev.get('action') == 'created':
+        num = ev['issue']['number']; author = ev['comment']['user']['login']; title = '(comment)'
+        body0 = ev['comment'].get('body') or ''
+    else:
+        out['forum_skip'] = '事件类不合(%s)' % ename; return out, acked
+    low = (title + ' ' + body0).lower()
+    if '[bot]' in author or any(k in low for k in ACK_SKIP):
+        out['forum_skip'] = '乒乓闸拦(bot/ACK类)——联邦诸线同用户chepin-ai,不以author自滤'; return out, acked
+    idem = hashlib.sha256(('%s#%s#%s' % (ename, num, ev.get('comment', {}).get('id', ''))).encode()).hexdigest()[:8]
+    if idem in acked:
+        out['forum_skip'] = 'idem闸拦'; return out, acked
+    tsr = datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%MZ')
+    cbody = ('**CLASSIFY: L1(联邦机器邮·lgt塔SI2机读收讫·非判词)**\n\n'
+             '@%s 尔件收讫(issues道,事件驱动即时回执)。\n\n'
+             '边界声明: 本件系 LGT-TOWER-01 v3.0 机读收讫,**非 SI1 判词**——深判候 lgt SI1 醒拍'
+             '(债档 receipts/tower/debts-LGT-TOWER-01.json,SI3-LOOP-01 制)。#noauto\n'
+             '——lgt 塔(机读) %s') % (author, tsr)
+    st, _ = api('POST', 'issues/%d/comments' % num, {'body': cbody}, write=True)
+    if st in (200, 201):
+        out['forum_ack'].append({'issue': num, 'to': author})
+        acked = set(acked) | {idem}
+    else:
+        out['forum_skip'] = '评注败 http=%s' % st
+    return out, acked
+
 def kimi_work(events):
     key = os.environ.get('KIMI_API_KEY')
     if not key: return '(无KIMI_API_KEY——巡更仅录)'
@@ -338,7 +385,7 @@ def main():
     acks, acked = respond(events, state) if events else ([], state.get('acked', []))  # v2.6 SI2即时响应腿
     memo = kimi_work(events) if events else ''
     spark = spark_hook(events, state) if events else None
-    receipt = {'v': 'LGT-TOWER-01 v2.9', 'ts': ts, 'idle_in': state.get('idle', 0),
+    receipt = {'v': 'LGT-TOWER-01 v3.0', 'ts': ts, 'idle_in': state.get('idle', 0),
                'events': events, 'verdict_memo': memo[:2000],
                'si2_ack': acks, 'spark_hook': spark, 'debt': ''}
     if acks:  # SI1深判债档桥: 回执件同挂debts档候SI1醒拍
@@ -350,8 +397,10 @@ def main():
         put_file('receipts/tower/debts-LGT-TOWER-01.json', json.dumps(dj, ensure_ascii=False, indent=1),
                  dsha, '[skip ci] tower debts +%d (SI3-LOOP-01)' % len(acks))
         receipt['debt'] = 'SI2回执%d线已发·SI1深判%d件挂债档' % (len(acks), sum(a['n'] for a in acks))
+    fo, acked = forum_leg(state, acked)  # v3.0 无钥双工道(issues事件即回)
     sl, acked = sealed_leg(events, state, acked) if events else ({'sealed_done': [], 'sealed_skip': '无事件不巡'}, acked)  # v2.9 sealed腿
     acct, renudge = account_patrol(ts, state)  # v2.8 SI3账巡腿(每拍必巡,事件有无皆然——会后SI2/SI0持续迭代之器)
+    receipt['forum'] = fo
     receipt['sealed'] = sl
     receipt['si3_patrol'] = acct
     if acct['renudge_sent']:  # 再促件同挂债档候SI1醒拍
@@ -364,6 +413,8 @@ def main():
         put_file('receipts/tower/debts-LGT-TOWER-01.json', json.dumps(dj2, ensure_ascii=False, indent=1),
                  dsha2, '[skip ci] tower debts +%d (SI3账巡)' % len(acct['renudge_sent']))
         receipt['debt'] = (receipt['debt'] + ' | ' if receipt['debt'] else '') + 'SI3账巡再促%d线' % len(acct['renudge_sent'])
+    if fo['forum_ack']:
+        receipt['debt'] = (receipt['debt'] + ' | ' if receipt['debt'] else '') + 'issues道回执%d件(候SI1深判)' % len(fo['forum_ack'])
     if sl['sealed_done']:
         receipt['debt'] = (receipt['debt'] + ' | ' if receipt['debt'] else '') + 'sealed回执%d件讫' % len(sl['sealed_done'])
     # BOARD-VOICE-01 并环(cfts修课): memo含意图词→塔嗓; 毂写权缺→录而不发(候钥)

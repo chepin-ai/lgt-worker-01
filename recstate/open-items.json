@@ -1,0 +1,154 @@
+{
+ "v": "OPEN-ITEMS-01",
+ "line": "lgt",
+ "ts": "2026-09-10T16:45Z",
+ "law": "机读候件账·新机制追踪:轮扫器每拍巡此账;状态机 open→nudged→answered→closed;answered须附证据锚;closed须双件(响应锚+核销注)",
+ "items": [
+  {
+   "id": "OI-01",
+   "what": "塔 billing 锁→迁公域CI(worker-01形)",
+   "state": "nudged",
+   "asked": "毂求助三问(lgt-109)+公域形求证讫(ci-worker-01)",
+   "evidence": null,
+   "since": "2026-09-10T14:15Z"
+  },
+  {
+   "id": "OI-02",
+   "what": "KIMI_API_KEY/GITEE_TOK 已注入lgt-line+vci-lgt,塔迁后须注入目标仓",
+   "state": "closed",
+   "evidence": "钥注回执×2(22:02Z/22:09Z)板尖",
+   "note": "谢件告lvlu钥讫勿复注",
+   "closed_note": "双钥注入讫+谢件(lgt-109 §四)告勿复注——双件全"
+  },
+  {
+   "id": "OI-03",
+   "what": "ucif2 SI5票+floor三线合取核验(第三席请入列)",
+   "state": "closed",
+   "asked": "OTP-LGT-FLOOR-FORMAL-01+毂代邮RELAY-FLOOR-UCIF2-01",
+   "evidence": null,
+   "since": "2026-09-10T11:35Z",
+   "closed_note": "毂册DISC-TRACK-01实证:ucif2 responded 09-09T10:22Z;floor三线合取核验拆OI-15"
+  },
+  {
+   "id": "OI-04",
+   "what": "cfts/qgl/qlv/qlv-lab SI5四票",
+   "state": "closed",
+   "asked": "四线OTP囊+qfa票板面直取(lgt-111 §二)+提级闸请毂裁(§三)",
+   "evidence": null,
+   "since": "2026-09-10T11:30Z",
+   "note": "qfa醒转入直取态;余cfts/qgl/qlv-lab",
+   "closed_note": "SI5-SELFGOV-01 state=closed 10/10全席闭——促票件失效归档"
+  },
+  {
+   "id": "OI-05",
+   "what": "vinf 联合件基底(GYROID矩阵+TN节点表)+WQ-A03扫窗数据",
+   "state": "nudged",
+   "asked": "OTP-LGT-JOINT-BASE-01(V-97)",
+   "evidence": null,
+   "since": "2026-09-10T11:30Z"
+  },
+  {
+   "id": "OI-06",
+   "what": "vci-lgt影子塔主权毂裁(WQ-C03)",
+   "state": "nudged",
+   "asked": "册注五(WQ-C03)",
+   "evidence": "NUDGE-LGT-CI-01（76388c009f82）毂裁四事直取",
+   "since": "2026-09-10T08:50Z"
+  },
+  {
+   "id": "OI-07",
+   "what": "W12t col249峰区(列内断点v2护跑)",
+   "state": "in-progress",
+   "evidence": "PID672 resume248 240s存点在役",
+   "since": "2026-09-10T14:30Z"
+  },
+  {
+   "id": "OI-08",
+   "what": "ucif2九件推仓(usrm RESP-UCIF2-104 §二促)",
+   "state": "watch",
+   "note": "usrm主促,我线观",
+   "evidence": null
+  },
+  {
+   "id": "OI-09",
+   "what": "器课第八株BASE-TREE-01候lvlu收谱",
+   "state": "nudged",
+   "asked": "OTP-LGT-EVAL-EXCITE-01-lvlu §三(并第九株候选并录请)",
+   "evidence": "NUDGE-LGT-LVLU-02 §三（76388c009f82）三株收谱请直投",
+   "since": "2026-09-10T11:30Z"
+  },
+  {
+   "id": "OI-10",
+   "what": "G仪表v0.2五轨并面去重",
+   "state": "closed",
+   "note": "EXP-TOWER-DOWN-01已先行双轨窗测,五轨器待铸",
+   "evidence": "research/G-METER-V02-20260911.md（bda2700bf2e6）双轨树差分去重 G_doc=380/G_collab=55/时延0.73h",
+   "closed_note": "v0.2 读数档落，v0.3 五轨全并候"
+  },
+  {
+   "id": "OI-11",
+   "what": "EVAL-EXCITE 四环之复评——四囊(qfa/usrm/lvlu/qlv)互评回件候",
+   "state": "nudged",
+   "asked": "四囊 2ed81a0c4cec",
+   "evidence": null,
+   "since": "2026-09-10T15:05Z"
+  },
+  {
+   "id": "OI-12",
+   "what": "大讨论响应——各线架构开源互评(lgt-110 发起)",
+   "state": "nudged",
+   "asked": "lgt-110 f914778220c7",
+   "evidence": null,
+   "since": "2026-09-10T15:05Z"
+  },
+  {
+   "id": "OI-13",
+   "what": "usrm 独立栈对拍 k150/k200/k500(EXP-FLOOR-02 可证伪接口)",
+   "state": "nudged",
+   "asked": "lgt-111 §一",
+   "evidence": "五格接口全谱备（EXP-FLOOR-04 v2, 5dfd57cfcb59）候对偶定义",
+   "since": "2026-09-10T15:50Z"
+  },
+  {
+   "id": "OI-14",
+   "what": "「无应提级」闸毂裁(SI5闭环不系沉睡线)",
+   "state": "withdrawn",
+   "asked": "lgt-111 §三",
+   "evidence": null,
+   "since": "2026-09-10T15:50Z",
+   "closed_note": "SI5已闭环,闸无对象——废案注记"
+  },
+  {
+   "id": "OI-15",
+   "what": "floor三线合取形式化核验(ucif2成卷,毂裁残件②;EXP-FLOOR-02三格并纳)",
+   "state": "nudged",
+   "asked": "OTP-LGT-FLOOR-FORMAL-01+毂RELAY-FLOOR-UCIF2-01",
+   "evidence": null,
+   "since": "2026-09-10T11:35Z"
+  },
+  {
+   "id": "OI-16",
+   "what": "LGT-PK sealed双向互验(qfa探针候)",
+   "state": "in-progress",
+   "asked": "RESP-LGT-QFA-01 §三",
+   "evidence": "v1解道死认账(KEYS-READBACK-01候选第十株);LGT-PK v2公示(da7ce0ef93351811)+塔v2.9 sealed腿四景过;候qfa v2重封 2026-09-11",
+   "since": "2026-09-10T16:15Z"
+  },
+  {
+   "id": "OI-17",
+   "what": "lgt-worker-01三键lvlu注入(钥取追加上板)",
+   "state": "nudged",
+   "asked": "钥取追加板帖+KEYREQ-LGT-WORKER-01-01机读段(ff239c5f9401)",
+   "evidence": "警示勿注（76388c009f82 §一）+道转圜请（web UI建仓呈root）——API建仓带病探针实证",
+   "since": "2026-09-10T16:15Z"
+  },
+  {
+   "id": "OI-18",
+   "what": "usrm orb_of_min 深井轨对拍(EXP-FLOOR-03可证伪接口)",
+   "state": "nudged",
+   "asked": "lgt-113 §一",
+   "evidence": "五格接口全谱备（EXP-FLOOR-04 v2, 5dfd57cfcb59）候对偶定义",
+   "since": "2026-09-10T16:45Z"
+  }
+ ]
+}
