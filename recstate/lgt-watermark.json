@@ -3,8 +3,8 @@
  "v": "SI3-SYNC-01",
  "ts": "2026-09-11T13:31:30Z",
  "watermarks": {
-  "board_tip": "43db554e1c7f",
-  "ledger_seq": 193,
+  "board_tip": "e915fe92294b",
+  "ledger_seq": 194,
   "threads": {
    "TH-RHYTHM-CRITICALITY-01": "383e0023d048",
    "TH-AUTONOMY-EMERGENCE-01": "7a3b83b815fe",
