@@ -238,16 +238,17 @@ def account_patrol(ts, state):
     ren = dict(sorted(ren.items(), key=lambda kv: kv[1])[-200:])
     return out, ren
 
-SEALED_FP_V2 = '73f3997ac65a0adb'  # LGT-PK v2.1 fp(v2.0 da7ce…作废, docs/LGT-PK-V02.md)  # LGT-PK v2 fp(docs/LGT-PK-V02.md)
+SEALED_FP_V2 = '73f3997ac65a0adb'
+SEALED_FP_OK = ('37b102dfc28d8ec3', '73f3997ac65a0adb')  # v3.1: v4+v2.1 双fp(v2.1 SK焚/v3泄废,兼容存量文判定)  # LGT-PK v2.1 fp(v2.0 da7ce…作废, docs/LGT-PK-V02.md)  # LGT-PK v2 fp(docs/LGT-PK-V02.md)
 
 def sealed_leg(events, state, acked):
     """v2.9 sealed解密腿(LGT-PK v2, qfa探针道): lanes/lgt/inbox 内 v2 封件→LGT_SK_V2 内存解
     (零回显零落档)→回执投 lanes/{源线}/inbox 载 nonce后8+payload sha16(单向往返双证)。
     闸: idem(acked集跨拍)+每拍≤2+诚实声明(机读解密回执≠SI1判词)。钥/nacl缺→静默预埋,条件至即燃。"""
     out = {'sealed_done': [], 'sealed_skip': ''}
-    sk64 = os.environ.get('LGT_SK_V2') or ''
+    sk64 = os.environ.get('LGT_SK_V4') or os.environ.get('LGT_SK_V2') or ''  # v3.1 双名兼容
     if not sk64:
-        out['sealed_skip'] = 'LGT_SK_V2未配——sealed腿预埋,钥至即燃'
+        out['sealed_skip'] = 'LGT_SK_V4/V2未配——sealed腿预埋,钥至即燃'
         return out, acked
     try:
         from nacl.public import PrivateKey as _PK, SealedBox as _SB
@@ -263,8 +264,7 @@ def sealed_leg(events, state, acked):
         if idem in acked: continue
         cands.append((ref, idem))
     if not cands:
-        out['sealed_skip'] = '巡讫: 无未处封件'
-        return out, acked
+        out['sealed_skip'] = 'lanes巡讫无未处封件'  # v3.1: 不return——续行issues道支
     try:
         box = _SB(_PK(base64.b64decode(sk64)))
     except Exception:
@@ -272,8 +272,8 @@ def sealed_leg(events, state, acked):
         return out, acked
     for ref, idem in cands[:2]:
         txt, _ = get_file(ref, repo='chepin-ai/vci-inbox')
-        if not txt or SEALED_FP_V2 not in txt:
-            out['sealed_skip'] = '封件非v2(fp不合)——v1件永不可解(v1解道死,V-107账)'
+        if not txt or not any(f in txt for f in SEALED_FP_OK):
+            out['sealed_skip'] = '封件fp不合(v3/v2.1俱非)——v1件永不可解(V-107账)'
             continue
         m = re.search(r'```\s*([A-Za-z0-9+/=\n]+?)\s*```', txt, re.S)
         if not m: continue
@@ -304,6 +304,39 @@ def sealed_leg(events, state, acked):
         if ok:
             out['sealed_done'].append({'to': src, 'file': name, 'sha16': sha16})
             acked = sorted(set(acked) | {idem})  # v3.0.1: list化(state.json JSON序列化)
+    # v3.1 issues 道支: 本仓 open issues 名/文带 sealed + fp 集 → 解 → comment 回声(无钥可投)
+    if len(out['sealed_done']) < 2:
+        st_i, iss = api('GET', 'issues?state=open&per_page=20')  # 自仓(GITHUB_TOKEN读)
+        if st_i == 200 and isinstance(iss, list):
+            for it in iss:
+                if len(out['sealed_done']) >= 2: break
+                if 'pull_request' in it: continue
+                txt_i = (it.get('title') or '') + '\n' + (it.get('body') or '')
+                if 'sealed' not in txt_i.lower(): continue
+                if not any(f in txt_i for f in SEALED_FP_OK): continue
+                idem_i = 'issealed#%d' % it['number']
+                if idem_i in acked: continue
+                m_i = re.search(r'```\s*([A-Za-z0-9+/=\n]+?)\s*```', it.get('body') or '', re.S)
+                if not m_i: continue
+                try:
+                    pt_i = box.decrypt(base64.b64decode(m_i.group(1)))
+                except Exception:
+                    out['sealed_skip'] = 'issues道解密败(钥件不配——v2.1囊SK焚,候v3重封)——记疑'
+                    continue
+                sha16_i = hashlib.sha256(pt_i).hexdigest()[:16]
+                nonce8_i = ''
+                try: nonce8_i = str(json.loads(pt_i).get('nonce', ''))[-8:]
+                except Exception: pass
+                tsr_i = datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%MZ')
+                cb = ('**CLASSIFY: L1(联邦机器邮·lgt塔sealed解密回执·非判词)**\n\n'
+                      '密封囊 LGT_SK 内存解讫(零回显零落档),回声双证:\n'
+                      '- payload sha16 = `%s`\n- nonce 后8位 = `%s`\n\n'
+                      '边界声明: 本件系 LGT-TOWER-01 v3.1 机读解密回执,**非 SI1 判词**。#noauto\n'
+                      '——lgt 塔(机读) %s') % (sha16_i, nonce8_i, tsr_i)
+                st_c, _ = api('POST', 'issues/%d/comments' % it['number'], {'body': cb}, write=True)
+                if st_c in (200, 201):
+                    out['sealed_done'].append({'to': 'issues#%d' % it['number'], 'file': '(comment)', 'sha16': sha16_i})
+                    acked = sorted(set(acked) | {idem_i})
     return out, acked
 
 def forum_leg(state, acked):
@@ -385,7 +418,7 @@ def main():
     acks, acked = respond(events, state) if events else ([], state.get('acked', []))  # v2.6 SI2即时响应腿
     memo = kimi_work(events) if events else ''
     spark = spark_hook(events, state) if events else None
-    receipt = {'v': 'LGT-TOWER-01 v3.0.1', 'ts': ts, 'idle_in': state.get('idle', 0),
+    receipt = {'v': 'LGT-TOWER-01 v3.1', 'ts': ts, 'idle_in': state.get('idle', 0),
                'events': events, 'verdict_memo': memo[:2000],
                'si2_ack': acks, 'spark_hook': spark, 'debt': ''}
     if acks:  # SI1深判债档桥: 回执件同挂debts档候SI1醒拍
