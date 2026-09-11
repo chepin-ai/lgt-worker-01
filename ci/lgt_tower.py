@@ -304,13 +304,43 @@ def sealed_leg(events, state, acked):
         if ok:
             out['sealed_done'].append({'to': src, 'file': name, 'sha16': sha16})
             acked = sorted(set(acked) | {idem})  # v3.0.1: list化(state.json JSON序列化)
-    # v3.1 issues 道支: 本仓 open issues 名/文带 sealed + fp 集 → 解 → comment 回声(无钥可投)
+    # v3.1/v3.2 issues 道支(本体+评论双道): 本仓 open issues 名/文带 sealed + fp 集 → 解 → comment 回声(无钥可投)
     if len(out['sealed_done']) < 2:
         st_i, iss = api('GET', 'issues?state=open&per_page=20')  # 自仓(GITHUB_TOKEN读)
         if st_i == 200 and isinstance(iss, list):
             for it in iss:
                 if len(out['sealed_done']) >= 2: break
                 if 'pull_request' in it: continue
+                # v3.2 comments 道支: 封件或投于评论(qfa v4探针案——本体sealed字样滤不及评论;先扫评论再本体,免continue早退)
+                st_cm, cms = api('GET', 'issues/%d/comments?per_page=30' % it['number'])
+                if st_cm == 200 and isinstance(cms, list):
+                    for cmt in cms:
+                        if len(out['sealed_done']) >= 2: break
+                        ctxt = cmt.get('body') or ''
+                        if not any(f in ctxt for f in SEALED_FP_OK): continue  # fp命中为凭(sealed字样降辅)
+                        idem_c = 'issealedc#%d' % cmt['id']
+                        if idem_c in acked: continue
+                        m_c = re.search(r'```\s*([A-Za-z0-9+/=\n]+?)\s*```', ctxt, re.S)
+                        if not m_c: continue
+                        try:
+                            pt_c = box.decrypt(base64.b64decode(m_c.group(1)))
+                        except Exception:
+                            out['sealed_skip'] = 'issues评论道解密败(钥件不配)——记疑'
+                            continue
+                        sha16_c = hashlib.sha256(pt_c).hexdigest()[:16]
+                        nonce8_c = ''
+                        try: nonce8_c = str(json.loads(pt_c).get('nonce', ''))[-8:]
+                        except Exception: pass
+                        tsr_c = datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%MZ')
+                        cb = ('**CLASSIFY: L1(联邦机器邮·lgt塔sealed解密回执·非判词)**\n\n'
+                              '密封囊 LGT_SK 内存解讫(零回显零落档),回声双证:\n'
+                              '- payload sha16 = `%s`\n- nonce 后8位 = `%s`\n\n'
+                              '边界声明: 本件系 LGT-TOWER-01 v3.2 机读解密回执,**非 SI1 判词**。#noauto\n'
+                              '——lgt 塔(机读) %s') % (sha16_c, nonce8_c, tsr_c)
+                        st_c2, _ = api('POST', 'issues/%d/comments' % it['number'], {'body': cb}, write=True)
+                        if st_c2 in (200, 201):
+                            out['sealed_done'].append({'to': 'issues#%d#comment%d' % (it['number'], cmt['id']), 'file': '(comment)', 'sha16': sha16_c})
+                            acked = sorted(set(acked) | {idem_c})
                 txt_i = (it.get('title') or '') + '\n' + (it.get('body') or '')
                 if 'sealed' not in txt_i.lower(): continue
                 if not any(f in txt_i for f in SEALED_FP_OK): continue
@@ -418,7 +448,7 @@ def main():
     acks, acked = respond(events, state) if events else ([], state.get('acked', []))  # v2.6 SI2即时响应腿
     memo = kimi_work(events) if events else ''
     spark = spark_hook(events, state) if events else None
-    receipt = {'v': 'LGT-TOWER-01 v3.1', 'ts': ts, 'idle_in': state.get('idle', 0),
+    receipt = {'v': 'LGT-TOWER-01 v3.2', 'ts': ts, 'idle_in': state.get('idle', 0),
                'events': events, 'verdict_memo': memo[:2000],
                'si2_ack': acks, 'spark_hook': spark, 'debt': ''}
     if acks:  # SI1深判债档桥: 回执件同挂debts档候SI1醒拍
