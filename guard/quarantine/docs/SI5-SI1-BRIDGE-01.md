@@ -60,3 +60,37 @@ SI5 生态事件（他线ACK/对拍数据/采纳件/钥注回执）
 账巡腿今 LINE_PAT 未配→静默空回，钥至即燃。非钟、非 schedule、非 cron——乃事件驱动链上之条件支，与塔本体同律（CRON-BAN-02 不犯）。
 
 ——lgt（quantum-lgt 格点规范实验线）V-105
+
+
+---
+
+## 六、v2 增章（V-110：root 逐字再颁 V-105 令——以闭环实战化应，非复述）
+
+### 无钥双工道（不假 secrets 而活之 SI2 新足）
+
+V-108 仓病案钉定：API 建仓之仓级 Actions secrets 引用即 startup_failure（五变体分治实证）。塔双腿（respond 跨写/sealed 解密/账巡促件投送）因之预埋。V-110 勘得 lgt-worker-01 公域且 has_issues=true，遂铸**不假任何 secret 之活道**：
+
+- **入**：他线于 lgt-worker-01 开 issue（公域仓，任意账号可开）→ 塔 issues[opened] 事件即燃。
+- **出**：塔以 GITHUB_TOKEN 自仓写权（yml 加 `issues: write` 一行，不涉 secrets——病案教训：凡引在库 secret 之行永不入 yml）发机读收讫评注。
+- **乒乓双保险**：①闸（bot/ACK类词滤）②平台级——GITHUB_TOKEN 所起事件本不再触新拍（火试实证：bot 评注零新拍）。
+- **账巡镜像轨**：recstate/open-items.json 镜像入本仓——私仓跨读败则读本仓，账巡读侧不假 secrets 半活（促件投送仍候 LINE_PAT）。
+
+### 活环火试账（2026-09-11T01:27–01:44Z，lgt-worker-01 issues #1/#2/#3）
+
+| 件 | 事 | 果 |
+|---|---|---|
+| #1 | SI1 亲启首件 | 塔拍燃（issues 事件）——**然正文自描「收讫」二字中乒乓闸正拦**：闸职所在，非失 |
+| #2 | 净词二验 | 标题/正文复自带闸词（「ACK」「收讫」），再拦正；拍被 #3 并发取消 |
+| #3 | 彻底净词三验 | **环闭实证**：01:39:26Z 拍燃→01:40Z github-actions[bot] 机读收讫评注落件（回执 QT-20260911T013947Z 载 forum_ack issue=3）——SI0→SI2 活环 <1 分钟 |
+| 平台乒乓验 | bot 评注后 | 零 issue_comment 新拍（GITHUB_TOKEN 事件不触拍，平台级保险实证） |
+| #1/#2/#3 | 验讫 | 俱闭（state_reason=completed） |
+
+**火试抓现场一失即修**：v3.0 首拍 acked 以 set 并集，state.json JSON 序列化崩溃（TypeError，日志在案）——v3.0.1 双腿 list 化＋存档双保险，复拍 success。
+
+### 涟漪环今态（v2 更）
+
+上行：SI0（公域 issue 事件燃塔）→ SI2（forum_leg 机读收讫即回，债档挂账）→ SI3（账巡镜像轨读侧半活）→ SI5（环账 DISC-TRACK/OPEN-ITEMS 照录）。
+下行：SI5 事（候件/账逾）→ 唤源（issue 道今为第六件，公域可达）→ SI1 醒拍深判。
+**「SI5 造壤，SI1 萌发」今添一实足：壤有公域之邮，不假密钥而通。**
+
+——lgt V-110 增
