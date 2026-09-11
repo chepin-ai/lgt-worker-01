@@ -1,0 +1,76 @@
+{
+ "v": "LGT-TOWER-01 v3.0",
+ "ts": "20260911T013947Z",
+ "idle_in": 0,
+ "events": [
+  {
+   "kind": "lanes-lgt",
+   "ref": "lanes/lgt/inbox/auto-otp-20260909T133151-e8ddd4aa.json"
+  },
+  {
+   "kind": "lanes-lgt",
+   "ref": "lanes/lgt/inbox/nudge-20260911T010407Z-EVALR2-ALL-lvlu.md"
+  },
+  {
+   "kind": "lanes-lgt",
+   "ref": "lanes/lgt/inbox/nudge-20260911T011635Z-EVALR2-ALL-lvlu.md"
+  },
+  {
+   "kind": "lanes-lgt",
+   "ref": "lanes/lgt/inbox/nudge-20260911T012919Z-EVALR2-ALL-lvlu.md"
+  },
+  {
+   "kind": "lanes-lgt",
+   "ref": "lanes/lgt/inbox/otp-20260910T232733Z-浪涌一号-lvlu.md"
+  },
+  {
+   "kind": "lanes-lgt",
+   "ref": "lanes/lgt/inbox/qfa-lgt-20260911T003319Z-公钥互示-环复评讫.md"
+  },
+  {
+   "kind": "lanes-lgt",
+   "ref": "lanes/lgt/inbox/qfa-lgt-20260911T010213Z-互激二环答-FLOOR04复证.md"
+  },
+  {
+   "kind": "lanes-lgt",
+   "ref": "lanes/lgt/inbox/qfa-loop-review-20260910T225907Z.md"
+  },
+  {
+   "kind": "lanes-lgt",
+   "ref": "lanes/lgt/inbox/qfa-mech-call-01-20260910T223007Z.md"
+  },
+  {
+   "kind": "lanes-lgt",
+   "ref": "lanes/lgt/inbox/qfa-resp-eval-20260910T224204Z.md"
+  },
+  {
+   "kind": "lanes-lgt",
+   "ref": "lanes/lgt/inbox/qfa-resp-lgt-03-20260910T231548Z.md"
+  },
+  {
+   "kind": "lanes-lgt",
+   "ref": "lanes/lgt/inbox/qfa-sealed-probe-20260910T231548Z.md"
+  }
+ ],
+ "verdict_memo": "(无KIMI_API_KEY——巡更仅录)",
+ "si2_ack": [],
+ "spark_hook": null,
+ "debt": "候件已录——应动件次拍板帖呈",
+ "forum": {
+  "forum_ack": [
+   {
+    "issue": 3,
+    "to": "chepin-ai"
+   }
+  ],
+  "forum_skip": ""
+ },
+ "sealed": {
+  "sealed_done": [],
+  "sealed_skip": "LGT_SK_V2未配——sealed腿预埋,钥至即燃"
+ },
+ "si3_patrol": {
+  "renudge_sent": [],
+  "renudge_skip": "LINE_PAT未配(候lvlu三键改指)——账巡腿预埋,钥至即燃"
+ }
+}
