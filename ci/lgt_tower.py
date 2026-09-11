@@ -273,7 +273,7 @@ def sealed_leg(events, state, acked):
     for ref, idem in cands[:2]:
         txt, _ = get_file(ref, repo='chepin-ai/vci-inbox')
         if not txt or not any(f in txt for f in SEALED_FP_OK):
-            out['sealed_skip'] = '封件fp不合(v3/v2.1俱非)——v1件永不可解(V-107账)'
+            out['sealed_skip'] = '封件fp不合(v4/v2.1俱非)——v1件永不可解(V-107账)'
             continue
         m = re.search(r'```\s*([A-Za-z0-9+/=\n]+?)\s*```', txt, re.S)
         if not m: continue
@@ -321,7 +321,7 @@ def sealed_leg(events, state, acked):
                 try:
                     pt_i = box.decrypt(base64.b64decode(m_i.group(1)))
                 except Exception:
-                    out['sealed_skip'] = 'issues道解密败(钥件不配——v2.1囊SK焚,候v3重封)——记疑'
+                    out['sealed_skip'] = 'issues道解密败(钥件不配——v2.1囊SK焚,候v4重封)——记疑'
                     continue
                 sha16_i = hashlib.sha256(pt_i).hexdigest()[:16]
                 nonce8_i = ''
