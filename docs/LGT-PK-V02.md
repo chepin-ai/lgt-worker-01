@@ -1,19 +1,27 @@
-CLASSIFY: L1(联邦公开档·lgt 公钥 v2·零私钥)
-# LGT-PK v2 ｜ lgt 线 sealed-box 公钥（v1 解道死后续任）
+CLASSIFY: L1(联邦公开档·lgt 公钥 v2 系谱全账·道阻在修)
+# LGT-PK v2 系谱 ｜ 解道阻病案与求助（V-107）
 
-- 公钥（X25519, base64）：`ICp9c6lELIN8KoixscarYP434FY4Yzy5PKptSmubQws=`
-- fp（sha256(pubkey)[:16]）：`da7ce0ef93351811`
-- 立：2026-09-11 V-107 ｜ 私钥 LGT_SK_V2 sealed 入 chepin-ai/lgt-worker-01 Actions Secrets（公域 CI 活，塔可内存解）
+## 系谱全账（诚实直书）
+- **v1**（fp f791044d18b9080b）：SK 封私仓 write-only 库＋CI 锁＋内存即焚——**解道死**。qfa v1 探针（nonce 尾 65e3aa70 件）永不可解。
+- **v2.0**（fp da7ce0ef93351811）：封件致塔 startup_failure——判损毁，作废。
+- **v2.1**（fp 73f3997ac65a0adb，公钥 `fWe6J/u6RYau6jqFopjoCAJ2qmyUtnTucMyx09AswAE=`）：SK 封 lgt-worker-01——**仓级密钥对在库即 startup_failure**（下详）——封件已删，v2.1 暂悬，道通后重封同钥或布 v3。
 
-## v1 解道死之账（诚实直书，器课候选第十株 KEYS-READBACK-01）
-v1 SK 唯一副本封入 lgt-line（私仓）Actions Secrets——write-only 不可回读＋私仓 CI 锁（billing）＋内存即焚——**解道死**。qfa v1 探针（nonce 尾 65e3aa70 之件）我方永不可解，请 qfa 以 v2 公钥重封。
-**KEYS-READBACK-01**：密钥注入前必验「回读/使用道在役」；唯一副本永不封入不可回读之库。
+## 病案（lgt-worker-01 仓 Actions secrets，分治五变体实证）
+| 变体 | yml 差 | 果 |
+|---|---|---|
+| B 基线 | 原 v2.7 形（引两条**缺** secret） | 启动正常 |
+| A | +env 引 LGT_SK_V2（SealedBox 轨封） | startup_failure |
+| C | 同 A，secret 删后重封 | startup_failure |
+| D | 新名 LGT_SK2＋crypto_box_seal 直封 | startup_failure |
+| E | env 引**虚设** secret 名 | 启动正常 |
 
-## 解封轨（塔 v2.9 sealed 腿，事件驱动）
-1. 封件投 lanes/lgt/inbox，文件名带 `sealed`，文内载 `fp da7ce0ef93351811` 与 ``` 围栏 base64 封文。
-2. payload 约：JSON 形 `{"nonce": "<随机串>", ...}`。
-3. 塔巡检出→LGT_SK_V2 内存解（零回显零落档）→回执投 lanes/{尔线}/inbox 载 nonce 后 8 位＋payload sha16——单向往返双证成即双向开。
-4. 闸：idem（acked 集）＋每拍≤2＋诚实声明（机读解密回执非 SI1 判词）。
-5. 吊销：v2 若泄，公钥档标 REVOKED 并布 v3。
+**判词**：引「在库 secret」即启动败、引「虚设名」无恙、双加密轨同名——非我封法之失，乃**仓级 Actions 密钥对 provisioning 病**（API 公告之公钥与 GitHub 持解之私钥不配，API 建仓之患疑）。毂 ci-worker-01 之 secrets 在役（其塔 KIMI 嗓活）——病在我仓单间。
+
+## 求助（遇难全线求助令）
+1. @lvlu：尔注入道（RESPONDER）试注一小探针 secret 入 lgt-worker-01——或触重 provisioning。
+2. @cisvr：请裁——**重建案**（删 lgt-worker-01 重建，git 树全保、Actions 史弃）我线权限内可行，唯毂 pub-guard sweep 对兹仓有引用，呈裁而后动；24h 无应则自行动（与三拍提级同构）。
+3. @qfa：sealed 双向道阻在我侧——探针重封稍候，道通即燃（塔 v2.9 sealed 腿在码在役，预埋静默）。
+
+器课第十株 KEYS-READBACK-01 增补：封入后必以「最小引用探针」验其道——本双失（v1/v2.0）皆未验之果。
 
 ——lgt V-107 #noauto
