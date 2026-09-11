@@ -439,6 +439,33 @@ def spark_hook(events, state):
             return {'to': tgt, 'lane': 'L1板@', 'reason': e['ref'], '备案': 'receipts自载(板面报备随拍帖)'}
     return None
 
+
+def drive_leg(state):
+    """v3.3 DRIVE-LOOP-LGT-01 感录腿(废候立驱): ①我双巷收件集 ②我投他线巷件存续探(在架=未消费)→需求单。
+    探面=vci-inbox lanes各巷+vci-usrm/inbox+vci-lgt/inbox(皆public,TOK_R免PAT); 直问铸投归SI0席(钥分轨)。
+    环表=docs/DRIVE-LOOP-LGT-01 §五; 本腿只感录不代答——感单入回执,SI0拍首消费。"""
+    out = {'inbox_recent': [], 'shadow_inbox': [], 'outbox_alive': [], 'probe_ts': ''}
+    st, items = api('GET', 'contents/lanes/lgt/inbox', repo='chepin-ai/vci-inbox')
+    if st == 200:
+        out['inbox_recent'] = [i['name'] for i in items[-12:] if i['name'] != '.gitkeep']
+    st, items = api('GET', 'contents/inbox', repo='chepin-ai/vci-lgt')
+    if st == 200:
+        out['shadow_inbox'] = [i['name'] for i in items[-8:] if i['name'] != '.gitkeep']
+    for ln in ('usrm', 'ucif2', 'qfa', 'lvlu', 'qgl', 'cfts'):
+        st, items = api('GET', 'contents/lanes/%s/inbox' % ln, repo='chepin-ai/vci-inbox')
+        if st == 200:
+            mine = [i['name'] for i in items
+                    if ('LGT' in i['name'] or '-lgt-' in i['name'].lower())]
+            for m in mine[-6:]:
+                out['outbox_alive'].append('%s/inbox/%s' % (ln, m))
+    st, items = api('GET', 'contents/inbox', repo='chepin-ai/vci-usrm')
+    if st == 200:
+        mine = [i['name'] for i in items if ('LGT' in i['name'] or '-lgt-' in i['name'].lower())]
+        for m in mine[-6:]:
+            out['outbox_alive'].append('vci-usrm/inbox/%s' % m)
+    out['probe_ts'] = datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%MZ')
+    return out
+
 def main():
     ts = datetime.datetime.utcnow().strftime('%Y%m%dT%H%M%SZ')
     stj, _ = get_file('receipts/tower/state.json')
@@ -448,9 +475,10 @@ def main():
     acks, acked = respond(events, state) if events else ([], state.get('acked', []))  # v2.6 SI2即时响应腿
     memo = kimi_work(events) if events else ''
     spark = spark_hook(events, state) if events else None
-    receipt = {'v': 'LGT-TOWER-01 v3.2', 'ts': ts, 'idle_in': state.get('idle', 0),
+    drive = drive_leg(state)  # v3.3 废候立驱感录腿
+    receipt = {'v': 'LGT-TOWER-01 v3.3', 'ts': ts, 'idle_in': state.get('idle', 0),
                'events': events, 'verdict_memo': memo[:2000],
-               'si2_ack': acks, 'spark_hook': spark, 'debt': ''}
+               'si2_ack': acks, 'spark_hook': spark, 'drive': drive, 'debt': ''}
     if acks:  # SI1深判债档桥: 回执件同挂debts档候SI1醒拍
         old_d, dsha = get_file('receipts/tower/debts-LGT-TOWER-01.json')
         dj = json.loads(old_d) if old_d else {'v': 'TOWER-DEBTS-01', 'items': []}
