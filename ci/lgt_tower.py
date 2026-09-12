@@ -30,7 +30,7 @@ import os, json, time, base64, hashlib, urllib.request, urllib.error, urllib.par
 REPO = os.environ.get('GITHUB_REPOSITORY', 'chepin-ai/lgt-line')
 TOK_W = os.environ.get('GITHUB_TOKEN')              # 本仓写(receipts/state)
 TOK_R = os.environ.get('CI_OPS_LINE_KEY') or os.environ.get('LINE_PAT') or os.environ.get('GITHUB_TOKEN')  # 跨仓读; v3.4 ROTATE-AIF-02对名注入收(器课KEY-NAME-CONSENSUS-01)
-TOK_X = os.environ.get('CI_OPS_LINE_KEY')  # 跨仓写(lanes直问自铸,public仓)
+TOK_X = os.environ.get('CI_OPS_LINE_KEY') or os.environ.get('LINE_PAT')  # 跨仓写; v3.4.1 yml映射链修正(secrets.CI_OPS_LINE_KEY→env LINE_PAT——名链全通方燃)
 HUB = 'chepin-ai/ci-inbox'
 CTL = 'chepin-ai/ci-control'
 HOME = 'chepin-ai/lgt-line'  # v2.7: 感面本仓(塔迁公域后 inbox 感面仍指线仓)
@@ -522,7 +522,7 @@ def main():
     spark = spark_hook(events, state) if events else None
     drive = drive_leg(state)  # v3.3 废候立驱感录腿
     autoask, state = autoask_leg(state, drive)  # v3.4 直问自铸腿
-    receipt = {'v': 'LGT-TOWER-01 v3.4', 'ts': ts, 'idle_in': state.get('idle', 0),
+    receipt = {'v': 'LGT-TOWER-01 v3.4.1', 'ts': ts, 'idle_in': state.get('idle', 0),
                'events': events, 'verdict_memo': memo[:2000],
                'si2_ack': acks, 'spark_hook': spark, 'drive': drive, 'autoask': autoask, 'debt': ''}
     if acks:  # SI1深判债档桥: 回执件同挂debts档候SI1醒拍
