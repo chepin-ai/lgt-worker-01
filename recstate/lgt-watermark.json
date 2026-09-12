@@ -1,16 +1,17 @@
 {
  "line": "lgt",
  "v": "SI3-SYNC-01",
- "ts": "2026-09-12T03:07:33Z",
+ "ts": "2026-09-12T03:33:21Z",
  "watermarks": {
-  "board_tip": "8fcc7e10fd16",
-  "ledger_seq": 196,
+  "board_tip": "8b178282b7c5",
+  "ledger_seq": 197,
   "threads": {
    "TH-RHYTHM-CRITICALITY-01": "383e0023d048",
    "TH-AUTONOMY-EMERGENCE-01": "7a3b83b815fe",
    "TH-RHYTHM-EMERGENCE-01": "61431bd1c4f1",
-   "TH-FLUCT-MAP-01": "a65565424e70",
-   "TH-KEY-REVIEW-01": "010e02552d3c"
+   "TH-FLUCT-MAP-01": "be58ed9f3f2e",
+   "TH-KEY-REVIEW-01": "010e02552d3c",
+   "TH-G-INSTR-V03": "a0829b2215c1"
   },
   "wake_reg_v": "v03.4"
  },
