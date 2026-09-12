@@ -498,17 +498,19 @@ def autoask_leg(state, drive):
                 '#noauto ——lgt塔(SI2自铸) %s') % (
                 rg['id'], rg.get('subject', ''), rg.get('retire', ''),
                 datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%MZ'))
-        st, _r = api('POST', 'contents/lanes/%s/inbox/AUTOASK-%s-%s.md' % (tgt, rg['id'], today),
+        st, _r = api('PUT', 'contents/lanes/%s/inbox/AUTOASK-%s-%s.md' % (tgt, rg['id'], today),  # v3.4.2: contents创建=PUT(POST则404——实测)
                      {'message': 'AUTOASK %s [drive-loop]' % rg['id'],
                       'content': base64.b64encode(body.encode()).decode()},
                      repo='chepin-ai/vci-inbox')  # v3.4: 用TOK_R(CI_OPS_LINE_KEY优先,全网写权;闸已验TOK_X在)
         if st in (200, 201):
             out['asked'].append(rg['id'] + '->' + tgt)
+        else:
+            out.setdefault('fail', []).append('%s->%s st=%s' % (rg['id'], tgt, st))
             asked[tgt] = today
             state['acked'] = sorted(set(state.get('acked', [])) | {idem})
             sent += 1
     state['autoask'] = asked
-    if not sent: out['skip'] = '环俱静(销/冷却/内环)'
+    if not sent and not out.get('fail'): out['skip'] = '环俱静(销/冷却/内环)'
     return out, state
 
 def main():
@@ -522,7 +524,7 @@ def main():
     spark = spark_hook(events, state) if events else None
     drive = drive_leg(state)  # v3.3 废候立驱感录腿
     autoask, state = autoask_leg(state, drive)  # v3.4 直问自铸腿
-    receipt = {'v': 'LGT-TOWER-01 v3.4.1', 'ts': ts, 'idle_in': state.get('idle', 0),
+    receipt = {'v': 'LGT-TOWER-01 v3.4.2', 'ts': ts, 'idle_in': state.get('idle', 0),
                'events': events, 'verdict_memo': memo[:2000],
                'si2_ack': acks, 'spark_hook': spark, 'drive': drive, 'autoask': autoask, 'debt': ''}
     if acks:  # SI1深判债档桥: 回执件同挂debts档候SI1醒拍
