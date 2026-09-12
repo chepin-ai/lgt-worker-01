@@ -1,0 +1,67 @@
+{
+ "id": "QRAND-SIM-LGT-01",
+ "ts": "2026-09-12T15:17:35Z",
+ "line": "lgt",
+ "stack": "lgt-C-DOP853-pert-v1 (dop853_pert.c: +splitmix64 确定性PRNG+初值相对扰动EPS)",
+ "config": {
+  "K": 200,
+  "NORB": 400,
+  "SPO": 512,
+  "eps": 1e-08,
+  "seeds": [
+   1,
+   2,
+   3,
+   4,
+   5,
+   6,
+   7,
+   8
+  ]
+ },
+ "zero_perturb_check": "eps=0 seed=1 → 0.16830552@orb98 逐位同在册（栈道可信）",
+ "floor_over_a": {
+  "1": 0.16841987825075502,
+  "2": 0.16825986734901757,
+  "3": 0.1683147173019558,
+  "4": 0.16829193715877752,
+  "5": 0.1682743291716231,
+  "6": 0.16826320214480595,
+  "7": 0.16834050476141932,
+  "8": 0.1683367686099226
+ },
+ "orb_of_min": {
+  "1": 198,
+  "2": 171,
+  "3": 9,
+  "4": 197,
+  "5": 98,
+  "6": 89,
+  "7": 35,
+  "8": 115
+ },
+ "stats": {
+  "mean": 0.16831265,
+  "std": 5.344e-05,
+  "spread_pct": 0.0951,
+  "amplification": "ε=1e-8 经400轨混沌放大至0.0951%（~1e4倍, Lyapunov域）"
+ },
+ "ks_28pairs": {
+  "reject_005": 2,
+  "p_median": 0.523,
+  "p_min": 0.0299,
+  "verdict": "拒同2/28与α=0.05假拒率相容——PRNG种子间无系统差"
+ },
+ "gate1": "【达】仿真差异饱和: PRNG面尽——量子面之问成真问(QRNG扰动分布vsPRNG饱和分布之KS对拍)",
+ "next": "判据二(电路qis全态预验)+判据三(≤120s单次方案成文)续行; 本源机时零用纪律守",
+ "data_files": [
+  "research/qrand_sim/pert_seed1.json",
+  "research/qrand_sim/pert_seed2.json",
+  "research/qrand_sim/pert_seed3.json",
+  "research/qrand_sim/pert_seed4.json",
+  "research/qrand_sim/pert_seed5.json",
+  "research/qrand_sim/pert_seed6.json",
+  "research/qrand_sim/pert_seed7.json",
+  "research/qrand_sim/pert_seed8.json"
+ ]
+}
