@@ -504,6 +504,11 @@ def autoask_leg(state, drive):
                      repo='chepin-ai/vci-inbox')  # v3.4: 用TOK_R(CI_OPS_LINE_KEY优先,全网写权;闸已验TOK_X在)
         if st in (200, 201):
             out['asked'].append(rg['id'] + '->' + tgt)
+        elif st == 422:
+            out['asked'].append(rg['id'] + '->' + tgt + '(在架)')
+            asked[tgt] = today
+            state['acked'] = sorted(set(state.get('acked', [])) | {idem})
+            sent += 1
         else:
             out.setdefault('fail', []).append('%s->%s st=%s' % (rg['id'], tgt, st))
             asked[tgt] = today
@@ -524,7 +529,7 @@ def main():
     spark = spark_hook(events, state) if events else None
     drive = drive_leg(state)  # v3.3 废候立驱感录腿
     autoask, state = autoask_leg(state, drive)  # v3.4 直问自铸腿
-    receipt = {'v': 'LGT-TOWER-01 v3.4.2', 'ts': ts, 'idle_in': state.get('idle', 0),
+    receipt = {'v': 'LGT-TOWER-01 v3.4.3', 'ts': ts, 'idle_in': state.get('idle', 0),
                'events': events, 'verdict_memo': memo[:2000],
                'si2_ack': acks, 'spark_hook': spark, 'drive': drive, 'autoask': autoask, 'debt': ''}
     if acks:  # SI1深判债档桥: 回执件同挂debts档候SI1醒拍
@@ -578,7 +583,8 @@ def main():
              sha, '[skip ci] LGT-TOWER beat %s' % ts)
     seen_new = list(set(state.get('seen', [])) | {e['ref'] for e in events} | set(board_names))
     new_state = {'ts': ts, 'idle': idle, 'events': len(events), 'watch': watch,
-                 'seen': seen_new[-500:], 'acked': sorted(set(acked)), 'renudge': renudge,  # v3.0.1 双保险
+                 'seen': seen_new[-500:], 'acked': sorted(set(acked) | set(state.get('acked', []))), 'renudge': renudge,  # v3.0.1 双保险; v3.4.3: acked并state(autoask idem不落)
+                 'autoask': state.get('autoask', {}),  # v3.4.3: 白名单遗键之修——autoask跨拍存续
                  'spark_fired': datetime.datetime.utcnow().strftime('%Y%m%d') if spark else state.get('spark_fired', ''),
                  'cascade': ''}
     selftest = os.environ.get('SELFTEST', '0') == '1'
