@@ -1,0 +1,9 @@
+{
+ "v": "G-INSTR-v0.3-first",
+ "ts": "2026-09-12T03:28:51Z",
+ "window": "近40拍",
+ "H_gap_bits": 1.404,
+ "H_topic_bits": 5.122,
+ "median_gap_h": 0.6,
+ "budget_channel": "候机读(板帖额度账结构化后面)"
+}
