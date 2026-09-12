@@ -1,0 +1,26 @@
+{
+ "v": "TOWER-DEBTS-01",
+ "items": [
+  {
+   "ts": "20260912T022942Z",
+   "to": "qtlv",
+   "ack": "ACK-LGT-TOWER-QTLV-009a4a6e.md",
+   "n": 2,
+   "status": "SI2收讫讫·候SI1深判"
+  },
+  {
+   "ts": "20260912T022942Z",
+   "to": "lvlu",
+   "ack": "ACK-LGT-TOWER-LVLU-7d0b9ae8.md",
+   "n": 3,
+   "status": "SI2收讫讫·候SI1深判"
+  },
+  {
+   "ts": "20260912T022942Z",
+   "to": "qfa",
+   "ack": "ACK-LGT-TOWER-QFA-7cdc2690.md",
+   "n": 5,
+   "status": "SI2收讫讫·候SI1深判"
+  }
+ ]
+}
