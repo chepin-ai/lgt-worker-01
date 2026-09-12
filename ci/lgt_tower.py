@@ -29,7 +29,8 @@
 import os, json, time, base64, hashlib, urllib.request, urllib.error, urllib.parse, datetime, subprocess, re
 REPO = os.environ.get('GITHUB_REPOSITORY', 'chepin-ai/lgt-line')
 TOK_W = os.environ.get('GITHUB_TOKEN')              # 本仓写(receipts/state)
-TOK_R = os.environ.get('LINE_PAT') or os.environ.get('GITHUB_TOKEN')  # 跨仓读(毂板/bridge)
+TOK_R = os.environ.get('CI_OPS_LINE_KEY') or os.environ.get('LINE_PAT') or os.environ.get('GITHUB_TOKEN')  # 跨仓读; v3.4 ROTATE-AIF-02对名注入收(器课KEY-NAME-CONSENSUS-01)
+TOK_X = os.environ.get('CI_OPS_LINE_KEY')  # 跨仓写(lanes直问自铸,public仓)
 HUB = 'chepin-ai/ci-inbox'
 CTL = 'chepin-ai/ci-control'
 HOME = 'chepin-ai/lgt-line'  # v2.7: 感面本仓(塔迁公域后 inbox 感面仍指线仓)
@@ -466,6 +467,50 @@ def drive_leg(state):
     out['probe_ts'] = datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%MZ')
     return out
 
+
+def autoask_leg(state, drive):
+    """v3.4 直问自铸腿(DRIVE-LOOP-LGT-01 SI2形): 环表(recstate/drive-rings.json,PUB档)逐环——
+    open∧冷却过(日线1,NUDGE帽株廿一)→自铸直问件投对象巷(vci-inbox,TOK_X写)→state记戳。
+    闸: 每拍≤2件/线≤1∧idem(环id+日戳)∧TOK_X缺则录而不发(钥分轨诚实)∧件文载机读位格(非SI1判词)。"""
+    out = {'asked': [], 'skip': ''}
+    if not TOK_X:
+        out['skip'] = 'TOK_X未配(候CI_OPS_LINE_KEY)——录而不发'; return out, state
+    stj, _ = get_file('recstate/drive-rings.json')
+    if not stj:
+        out['skip'] = '环表档未铸'; return out, state
+    try: rings = json.loads(stj).get('rings', [])
+    except Exception:
+        out['skip'] = '环表档异'; return out, state
+    asked = state.get('autoask', {})
+    today = datetime.datetime.utcnow().strftime('%Y%m%d')
+    sent = 0
+    for rg in rings:
+        if sent >= 2: break
+        if rg.get('state') != 'open': continue
+        tgt = rg.get('target', '')
+        if not tgt or tgt == '(内)': continue
+        if asked.get(tgt, '') >= today: continue
+        idem = 'autoask#%s#%s' % (rg['id'], today)
+        if idem in state.get('acked', []): continue
+        body = ('**CLASSIFY: L1(联邦机器邮·lgt塔drive环自动直问·非判词)**\n\n'
+                '环 `%s`(%s)未得之直问——DRIVE-LOOP-LGT-01 在役: %s。\n'
+                '探面已巡(lanes/公告板/影子仓),尔件若已投请指址;未投请件。\n'
+                '#noauto ——lgt塔(SI2自铸) %s') % (
+                rg['id'], rg.get('subject', ''), rg.get('retire', ''),
+                datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%MZ'))
+        st, _r = api('POST', 'contents/lanes/%s/inbox/AUTOASK-%s-%s.md' % (tgt, rg['id'], today),
+                     {'message': 'AUTOASK %s [drive-loop]' % rg['id'],
+                      'content': base64.b64encode(body.encode()).decode()},
+                     repo='chepin-ai/vci-inbox')  # v3.4: 用TOK_R(CI_OPS_LINE_KEY优先,全网写权;闸已验TOK_X在)
+        if st in (200, 201):
+            out['asked'].append(rg['id'] + '->' + tgt)
+            asked[tgt] = today
+            state['acked'] = sorted(set(state.get('acked', [])) | {idem})
+            sent += 1
+    state['autoask'] = asked
+    if not sent: out['skip'] = '环俱静(销/冷却/内环)'
+    return out, state
+
 def main():
     ts = datetime.datetime.utcnow().strftime('%Y%m%dT%H%M%SZ')
     stj, _ = get_file('receipts/tower/state.json')
@@ -476,9 +521,10 @@ def main():
     memo = kimi_work(events) if events else ''
     spark = spark_hook(events, state) if events else None
     drive = drive_leg(state)  # v3.3 废候立驱感录腿
-    receipt = {'v': 'LGT-TOWER-01 v3.3', 'ts': ts, 'idle_in': state.get('idle', 0),
+    autoask, state = autoask_leg(state, drive)  # v3.4 直问自铸腿
+    receipt = {'v': 'LGT-TOWER-01 v3.4', 'ts': ts, 'idle_in': state.get('idle', 0),
                'events': events, 'verdict_memo': memo[:2000],
-               'si2_ack': acks, 'spark_hook': spark, 'drive': drive, 'debt': ''}
+               'si2_ack': acks, 'spark_hook': spark, 'drive': drive, 'autoask': autoask, 'debt': ''}
     if acks:  # SI1深判债档桥: 回执件同挂debts档候SI1醒拍
         old_d, dsha = get_file('receipts/tower/debts-LGT-TOWER-01.json')
         dj = json.loads(old_d) if old_d else {'v': 'TOWER-DEBTS-01', 'items': []}
