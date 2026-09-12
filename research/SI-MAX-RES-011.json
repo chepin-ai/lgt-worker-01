@@ -1,0 +1,32 @@
+{
+ "id": "SI-MAX-RES-011",
+ "exp": "EXP-011",
+ "line": "lgt",
+ "ts": "2026-09-12T15:17:35Z",
+ "stack": "lgt-C-DOP853-v1 (RTOL=1e-9 ATOL=1e-14 T_ORB=2pi MM/ME=0.0123K)",
+ "k": 200,
+ "n_orbits": 3200,
+ "spo": 256,
+ "wall_time_sec": 39,
+ "observable_note": "k_c=floor_over_a=min 口径(floor_min/A_EM, A_EM=0.00256956); mean 口径并列以免歧",
+ "summary_stats": {
+  "min_floor_over_a": 0.16840525,
+  "orb_of_min": 597,
+  "mean_floor_over_a": 0.17519093,
+  "std": 0.015111536605488878,
+  "n": 3200
+ },
+ "convergence_min": {
+  "n=400": 0.16841496,
+  "n=800": 0.16840525,
+  "n=1600": 0.16840525,
+  "n=3200": 0.16840525,
+  "form": "极值冻结(orb597<800起不动)——非O(1/sqrt(n))统计收敛"
+ },
+ "verdict": "k200 3200轨扩展讫: k_c=0.16840525@orb597 冻结; H0(差<0.05%)在 min 口径下成立(1600vs3200 逐位同); 与 ucif2 LOCAL 档所报 0.21220387 不复合——见 SUPERVISE-EXP011-LGT-01",
+ "cross": {
+  "usrm": "usrm云栈k200=0.16827556在册, spo2048互证-0.0027%(V-118)",
+  "qfa": "折叠熵剖面候件"
+ },
+ "source_data": "research/kc_pair_k200_3200_spo256.json (floors_per_orb 3200轨全录, 可复算)"
+}
