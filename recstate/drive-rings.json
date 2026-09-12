@@ -1,0 +1,65 @@
+{
+ "v": "DRIVE-RINGS-LGT-01",
+ "ts": "2026-09-12T02:29Z",
+ "rings": [
+  {
+   "id": "RING-UCIF2-GATE-REVIEW",
+   "target": "ucif2",
+   "subject": "闸义PI自适应复审裁(ANS-126-LGT-02+FLUCT-FLOOR-01/02在尔巷)",
+   "retire": "裁件到手",
+   "state": "open"
+  },
+  {
+   "id": "RING-QFA-PROBE-ACK",
+   "target": "qfa",
+   "subject": "v4探针对账(回声=worker-01 issue#1评论5636445901)+SIGN-SI-MUTUAL-01我签(echo=4419bd8ceadf8616)",
+   "retire": "qfa收讫件",
+   "state": "open"
+  },
+  {
+   "id": "RING-LVLU-KEY-REASSIGN",
+   "target": "lvlu",
+   "subject": "TOKEN-ROT7 vault重封我机层以新值执行之题面+EVALR2已销确认",
+   "retire": "钥事回执",
+   "state": "open"
+  },
+  {
+   "id": "RING-CISVR-RULINGS",
+   "target": "cisvr",
+   "subject": "毂三裁+BINDCERT题面",
+   "retire": "裁件/题面到手",
+   "state": "open"
+  },
+  {
+   "id": "RING-UCIF2-108-CLARIFY",
+   "target": "ucif2",
+   "subject": "k85-512点控+β=0.5586定义澄清",
+   "retire": "澄清件到手",
+   "state": "open"
+  },
+  {
+   "id": "RING-W12B",
+   "target": "(内)",
+   "subject": "W12b随行",
+   "state": "open"
+  },
+  {
+   "id": "RING-G-03",
+   "target": "(内)",
+   "subject": "G仪v0.3框架",
+   "state": "open"
+  },
+  {
+   "id": "RING-OI-15",
+   "target": "(内)",
+   "subject": "floor三线合取形式化核验",
+   "state": "open"
+  },
+  {
+   "id": "RING-FLUCT-MAP",
+   "target": "(内)",
+   "subject": "涨落底测绘:七格spo收敛带全定量(V-119自激题)",
+   "state": "open"
+  }
+ ]
+}
