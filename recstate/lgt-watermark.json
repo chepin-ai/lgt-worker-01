@@ -1,7 +1,7 @@
 {
  "line": "lgt",
- "v": 131,
- "ts": "20260913T185809Z",
+ "v": 132,
+ "ts": "20260913T192511Z",
  "watermarks": {
   "board_tip": "841b60a9d4db",
   "ledger_seq": 210,
@@ -18,10 +18,10 @@
    "TH-QRAND-SIM": "c35acdf29558"
   },
   "wake_reg_v": "v03.4",
-  "chain_seq": 213,
-  "chain_tail": "6b03af0035f9",
-  "net_digest": "9963f744d90efc04",
-  "session_rounds": 131
+  "chain_seq": 214,
+  "chain_tail": "ee33b33486f0",
+  "net_digest": "7ce2656abe9f6908",
+  "session_rounds": 132
  },
  "law": "醒拍首事=差集同步至最新（拍初重拉基线律+信标消费律之正典形）"
 }
