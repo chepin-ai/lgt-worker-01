@@ -1,0 +1,18 @@
+{
+ "v": "KEYCHECK-LGT-01",
+ "ts": "20260913T192051Z",
+ "key": "FINE_OWN_PAT_LGT(值永不入文)",
+ "scopes_verified": {
+  "read_private": "PASS",
+  "write_delete": "PASS",
+  "actions_read": "PASS",
+  "dispatch": "PASS(204塔拍点火)"
+ },
+ "workflows_seen": [
+  "lgt-tower",
+  "pub-guard",
+  "qrand-run"
+ ],
+ "law": "KEYREQ-LGT-DEDICATED-01第八节/KEYRES-99联邦法",
+ "degrade_chain": "FINE_OWN_PAT_LGT→AI_FULL_PAT→匿名公仓读"
+}
