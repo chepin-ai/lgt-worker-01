@@ -730,12 +730,21 @@ def octo_leg(state, ts):
     ④NONCE册(REPO ci/FINDING-NONCE*)⑤讨论室threads尖⑥QSET庭尖(BI disc QSET)⑦W12t(PUB actions runs)⑧session-circle陈腐显形(>2拍未导→债档提SI1)。
     感录差集入receipt;全public/自仓面TOK_R免PAT。"""
     out = {}
-    st, items = api('GET', 'contents/公告板', repo='chepin-ai/ci-inbox')
+    st, items = api('GET', 'git/trees/HEAD?recursive=0', repo='chepin-ai/ci-inbox')
+    bd_sha = ''
     if st == 200:
-        names = sorted(i['name'] for i in items if i['name'].endswith('.md'))
+        for it in items.get('tree', []):
+            if it.get('path') == '公告板':
+                bd_sha = it.get('sha', '')
+    names = []
+    if bd_sha:
+        st2, j2 = api('GET', 'git/trees/%s' % bd_sha, repo='chepin-ai/ci-inbox')
+        if st2 == 200:
+            names = [i['path'] for i in j2.get('tree', []) if i['path'].endswith('.md')]
+    if names:
         prev = state.get('octo_board', [])
         new = [n for n in names if n not in set(prev)]
-        out['board_tip'] = names[-3:]
+        out['board_tip'] = sorted(names, key=lambda s: (re.findall(r'20\d{6}T\d{4,6}Z', s) or [''])[-1])[-3:]  # v3.6.1: 时序取尾(字典序之修)+tree递归(截断之修)
         out['board_new_n'] = len(new)
         state['octo_board'] = (prev + [n for n in new if n not in set(prev)])[-1500:]
     st, j = api('GET', '', repo='chepin-ai/vci-cfts')
@@ -755,6 +764,7 @@ def octo_leg(state, ts):
         th = sorted(i['name'] for i in items if i['name'].endswith('.md'))
         prev2 = state.get('octo_disc', [])
         new2 = [n for n in th if n not in set(prev2)]
+        th = sorted(th, key=lambda s: (re.findall(r'20\d{6}T\d{4,6}Z', s) or [s])[-1])  # v3.6.1 时序
         out['disc_new'] = new2[-10:]
         state['octo_disc'] = (prev2 + [n for n in new2 if n not in set(prev2)])[-400:]
     st, items = api('GET', 'contents/disc', repo='chepin-ai/ci-inbox')
@@ -796,7 +806,7 @@ def main():
     finding, state = finding_leg(state, ts)  # v3.6 finding轮扫腿(候字三态阶梯)
     taskr, state = task_leg(state, ts)  # v3.6 机读TASK道消费腿
     octo, state = octo_leg(state, ts)  # v3.6 八面轮扫补面腿
-    receipt = {'v': 'LGT-TOWER-01 v3.6.0', 'ts': ts, 'idle_in': state.get('idle', 0),
+    receipt = {'v': 'LGT-TOWER-01 v3.6.1', 'ts': ts, 'idle_in': state.get('idle', 0),
                'events': events, 'verdict_memo': memo[:2000],
                'si2_ack': acks, 'spark_hook': spark, 'drive': drive, 'autoask': autoask,
                'finding': finding, 'task_leg': taskr, 'octo': octo, 'debt': ''}
