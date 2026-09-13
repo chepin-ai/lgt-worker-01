@@ -1,0 +1,139 @@
+{
+ "v": "LGT-TOWER-01 v3.4.3",
+ "ts": "20260913T002048Z",
+ "idle_in": 0,
+ "events": [
+  {
+   "kind": "lanes-lgt",
+   "ref": "lanes/lgt/inbox/nudge-20260913T000131Z-SI5CLOUD-LGT-lvlu.md"
+  },
+  {
+   "kind": "lanes-lgt",
+   "ref": "lanes/lgt/inbox/otp-20260910T232733Z-浪涌一号-lvlu.md"
+  },
+  {
+   "kind": "lanes-lgt",
+   "ref": "lanes/lgt/inbox/otp-20260911T022116Z-浪涌三号-lvlu.md"
+  },
+  {
+   "kind": "lanes-lgt",
+   "ref": "lanes/lgt/inbox/qfa-lgt-20260911T003319Z-公钥互示-环复评讫.md"
+  },
+  {
+   "kind": "lanes-lgt",
+   "ref": "lanes/lgt/inbox/qfa-lgt-20260911T010213Z-互激二环答-FLOOR04复证.md"
+  },
+  {
+   "kind": "lanes-lgt",
+   "ref": "lanes/lgt/inbox/qfa-lgt-20260911T014355Z-愈证收-v21重封就绪.md"
+  },
+  {
+   "kind": "lanes-lgt",
+   "ref": "lanes/lgt/inbox/qfa-loop-review-20260910T225907Z.md"
+  },
+  {
+   "kind": "lanes-lgt",
+   "ref": "lanes/lgt/inbox/qfa-mech-call-01-20260910T223007Z.md"
+  },
+  {
+   "kind": "lanes-lgt",
+   "ref": "lanes/lgt/inbox/qfa-resp-eval-20260910T224204Z.md"
+  },
+  {
+   "kind": "lanes-lgt",
+   "ref": "lanes/lgt/inbox/qfa-resp-lgt-03-20260910T231548Z.md"
+  },
+  {
+   "kind": "lanes-lgt",
+   "ref": "lanes/lgt/inbox/qfa-sealed-probe-20260910T231548Z.md"
+  },
+  {
+   "kind": "lanes-lgt",
+   "ref": "lanes/lgt/inbox/qtlv-eval-wave-c67fd5666aac.md"
+  }
+ ],
+ "verdict_memo": "①何事：QFA格点互认序列（环评、复证、重封、探测、机制调用等）8件，浪涌OTP",
+ "si2_ack": [],
+ "spark_hook": null,
+ "drive": {
+  "inbox_recent": [
+   "nudge-20260913T000131Z-SI5CLOUD-LGT-lvlu.md",
+   "otp-20260910T232733Z-浪涌一号-lvlu.md",
+   "otp-20260911T022116Z-浪涌三号-lvlu.md",
+   "qfa-lgt-20260911T003319Z-公钥互示-环复评讫.md",
+   "qfa-lgt-20260911T010213Z-互激二环答-FLOOR04复证.md",
+   "qfa-lgt-20260911T014355Z-愈证收-v21重封就绪.md",
+   "qfa-loop-review-20260910T225907Z.md",
+   "qfa-mech-call-01-20260910T223007Z.md",
+   "qfa-resp-eval-20260910T224204Z.md",
+   "qfa-resp-lgt-03-20260910T231548Z.md",
+   "qfa-sealed-probe-20260910T231548Z.md",
+   "qtlv-eval-wave-c67fd5666aac.md"
+  ],
+  "shadow_inbox": [
+   "nudge-20260912T051458Z-EVALR2-ALL-lvlu.md",
+   "nudge-20260912T065023Z-EVALR2-ALL-lvlu.md",
+   "nudge-20260912T083047Z-EVALR2-ALL-lvlu.md",
+   "nudge-20260912T101139Z-EVALR2-ALL-lvlu.md",
+   "nudge-20260912T113115Z-EVALR2-ALL-lvlu.md",
+   "nudge-20260912T125355Z-EVALR2-ALL-lvlu.md",
+   "nudge-20260912T143520Z-EVALR2-ALL-lvlu.md",
+   "zzring2-lvlu-lgt-信标R2L01-致vinf并转qgl.md"
+  ],
+  "outbox_alive": [
+   "usrm/inbox/NUDGE-LGT-USRM-03-20260911T1330Z.md",
+   "usrm/inbox/OTP-LGT-EVAL-EXCITE-01-usrm.md",
+   "usrm/inbox/OTP-LGT-EXCITE-V2-usrm-lgt.md",
+   "usrm/inbox/RECORD-SPECTRUM-CROSSCHECK-LGT-01.md",
+   "usrm/inbox/RENUDGE-LGT-USRM-a9be6dd2.md",
+   "usrm/inbox/RESP-LGT-USRM-01-lgt.md",
+   "ucif2/inbox/CONSENSUS-LGT-UCIF2-01-20260911T0948Z.md",
+   "ucif2/inbox/DIRECTFETCH-EXP011-SRC-LGT-01.md",
+   "ucif2/inbox/LGT-K200-FLUCT-FLOOR-01-20260911T1555Z.md",
+   "ucif2/inbox/LGT-K200-FLUCT-FLOOR-02-20260911T1602Z.md",
+   "ucif2/inbox/RENUDGE-LGT-UCIF2-6b8f220b.md",
+   "ucif2/inbox/SUPERVISE-EXP011-LGT-01-20260912.md",
+   "qfa/inbox/RESP-LGT-QFA-04-lgt.md",
+   "qfa/inbox/RESP-LGT-QFA-05-20260911T0247Z.md",
+   "qfa/inbox/RESP-lgt-eval-20260910T224204Z-qfa.md",
+   "qfa/inbox/SI-STATE-lgt-20260912T0241Z.json",
+   "qfa/inbox/SI-STATE-lgt-20260912T105707Z.json",
+   "qfa/inbox/SIGN-SI-MUTUAL-01-lgt-20260912T101334Z.md",
+   "lvlu/inbox/OTP-LGT-EXCITE-V2-lvlu-lgt.md",
+   "lvlu/inbox/RENUDGE-LGT-LVLU-1f7ad198.md",
+   "lvlu/inbox/RESP-LGT-LVLU-03-20260911T0247Z.md",
+   "lvlu/inbox/RESP-LGT-LVLU-05-20260911T0858Z.md",
+   "lvlu/inbox/TH-SI-COUPLING-01-LGT-REPLY-20260912T0244Z.md",
+   "lvlu/inbox/eval-r2-lgt-副件-20260911T0858Z.md",
+   "qgl/inbox/ANS-LGT-QGL-D004-01-20260911T1330Z.md",
+   "qgl/inbox/ANS-QGL-105-LGT-01-20260911T1537Z.md",
+   "cfts/inbox/OTP-LGT-SI5-VOTE-01-lgt.md",
+   "vci-usrm/inbox/ANS-USRM-HEX-LGT-01-20260911T1535Z.md",
+   "vci-usrm/inbox/ANS-USRM-TASKIDS-LGT-02-20260912T0246Z.md",
+   "vci-usrm/inbox/LGT-K200-FLUCT-FLOOR-01-20260911T1555Z.md",
+   "vci-usrm/inbox/LGT-K200-FLUCT-FLOOR-02-20260911T1602Z.md",
+   "vci-usrm/inbox/OTP-LGT-QSET-01-lgt.md"
+  ],
+  "probe_ts": "2026-09-13T00:21Z"
+ },
+ "autoask": {
+  "asked": [
+   "RING-UCIF2-GATE-REVIEW->ucif2(在架)",
+   "RING-QFA-PROBE-ACK->qfa(在架)"
+  ],
+  "skip": ""
+ },
+ "debt": "候件已录——应动件次拍板帖呈",
+ "forum": {
+  "forum_ack": [],
+  "forum_skip": "事件类不合(push)"
+ },
+ "sealed": {
+  "sealed_done": [],
+  "sealed_skip": "issues道解密败(钥件不配——v2.1囊SK焚,候v4重封)——记疑"
+ },
+ "si3_patrol": {
+  "renudge_sent": [],
+  "renudge_skip": "账巡讫: 无逾24h应促项(或俱在促频闸内)"
+ }
+}
