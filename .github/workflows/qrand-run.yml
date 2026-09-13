@@ -1,0 +1,25 @@
+name: qrand-run
+on:
+  workflow_dispatch:
+    inputs:
+      shots:
+        description: 'shots (default 1024, hard cap 4096)'
+        required: false
+        default: '1024'
+jobs:
+  qrand:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: setup python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: qrand single-shot run (zero-retry law)
+        env:
+          OPENQUANTUM_API_KEY: ${{ secrets.OPENQUANTUM_API_KEY }}
+          OPENQUANTUM_CLIENT_ID: ${{ secrets.OPENQUANTUM_CLIENT_ID }}
+          OPENQUANTUM_UID: ${{ secrets.OPENQUANTUM_UID }}
+        run: |
+          python3 ci/qrand_single.py --shots ${{ github.event.inputs.shots }} --receipt receipts/qrand-$(date -u +%Y%m%dT%H%M%SZ).json
