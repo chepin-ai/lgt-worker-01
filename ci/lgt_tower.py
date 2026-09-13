@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# LGT-TOWER-01 v3.5 — lgt线SI0塔（塔范式第七器·MUTUAL-IGNITE-01 环之候足→今环闭）
+# LGT-TOWER-01 v3.6 — lgt线SI0塔（塔范式第七器·MUTUAL-IGNITE-01 环之候足→今环闭）
 # 五律: 零定时器 / 自级联(候件非空→拍内冷却→自POST dispatch) / 防自激三律 / 钥在仓 / 拍尾生债
 # 第四件: SPARK-HOOK 互级联钩(LAW-SPARK-01 §三)——每拍≤1发/候线豁免/发即报备
 # v2 借形(cfts修课二+BOARD-VOICE-01, 2026-09-08 V-87):
@@ -40,7 +40,7 @@ LINE = 'lgt'
 STALLED = ('vinf', 'qlv')  # 候线(cisvr-194)——道A/火花豁免,沉默权在彼 | qgl 2026-09-07复列(QGL-TOWER-01双拍+级联fired+毂镜像互证,V-78); vinf半像暂留
 
 def api(method, path, data=None, repo=None, write=False):
-    url = f'https://api.github.com/repos/{repo or REPO}/{path}'
+    url = f'https://api.github.com/repos/{repo or REPO}/{urllib.parse.quote(path, safe="/?&=~:")}'  # v3.6.1: 中文面quote(公告板/讨论室巡面修复)
     tok = TOK_W if write else TOK_R
     req = urllib.request.Request(url, method=method,
         headers={'Authorization': f'Bearer {tok}', 'Accept': 'application/vnd.github+json',
@@ -611,6 +611,165 @@ def autoask_leg(state, drive):
     if not sent and not out.get('fail'): out['skip'] = '环俱静(销/冷却/内环)'
     return out, state
 
+def finding_leg(state, ts):
+    """v3.6 FINDING-TRACE-01轮扫腿(候字三态·武装候阶梯TRG→NUDGE→庭,逾拍自升):
+    recstate/finding-registry.json open/verifying件陈>1拍→自动投NUDGE至verify_path所指巷(日线1/件,每拍≤2);驱讫候边界录而不发。"""
+    out = {'nudged': [], 'armed': 0, 'skip': ''}
+    stj, _ = get_file('recstate/finding-registry.json', repo=HOME)  # v3.6.1: 正本在HOME私仓跨读(account_patrol先例)
+    if not stj:
+        out['skip'] = 'registry未铸'; return out, state
+    try:
+        reg = json.loads(stj)
+    except Exception:
+        out['skip'] = 'registry档异'; return out, state
+    if not TOK_X:
+        out['skip'] = 'TOK_X未配——录而不发'; return out, state
+    nudged = state.get('finding_nudge', {})
+    today = datetime.datetime.utcnow().strftime('%Y%m%d')
+    sent = 0
+    for f in reg.get('findings', []):
+        if f.get('state') not in ('open', 'verifying'):
+            continue
+        out['armed'] += 1
+        if sent >= 2:
+            continue
+        vp = f.get('verify_path', '')
+        m2 = re.search(r'lanes/(\w+)/inbox/', vp)
+        tgt = m2.group(1) if m2 else ''
+        if not tgt or nudged.get(f['id'], '') >= today:
+            continue
+        idem = 'finding_nudge#%s#%s' % (f['id'], today)
+        if idem in state.get('acked', []):
+            continue
+        body = ('**CLASSIFY: L1(联邦机器邮·lgt塔finding环自动升阶NUDGE·非判词)**\n\n'
+                'FINDING `%s` state=%s 陈逾一拍未得答——候字三态武装候阶梯(TRG→NUDGE→庭)二级。\n'
+                '案: %s\n末次驱件: %s\n请答/指址;逾拍再升至庭/直算。\n'
+                '#noauto ——lgt塔(SI2自铸) %s') % (
+                    f['id'], f.get('state'), f.get('summary', '')[:100], vp[:140], ts)
+        st, _r = api('PUT', 'contents/lanes/%s/inbox/FINDING-NUDGE-%s-%s.md' % (tgt, f['id'], today),
+                     {'message': 'FINDING-NUDGE %s [finding-trace]' % f['id'],
+                      'content': base64.b64encode(body.encode()).decode()},
+                     repo='chepin-ai/vci-inbox', write=True)
+        if st in (200, 201):
+            out['nudged'].append('%s→%s' % (f['id'], tgt))
+            nudged[f['id']] = today
+            sent += 1
+            state.setdefault('acked', []).append(idem)
+    state['finding_nudge'] = nudged
+    return out, state
+
+
+def task_leg(state, ts):
+    """v3.6机读TASK道消费腿(INJECT-IFACE-LGT-01三注道公示): 巡lanes/lgt/inbox/TASK-*.json+vci-lgt/inbox/TASK-*
+    新件即拍机答: echo/ping即答; fetch形(inputs.file∈research/白名单∧output公域仓)直办直发; 余收执+钉债档候SI1。幂等state['task_done']。"""
+    out = {'done': [], 'skip': ''}
+    cands = []
+    st, items = api('GET', 'contents/lanes/lgt/inbox', repo='chepin-ai/vci-inbox')
+    if st == 200:
+        cands += [('chepin-ai/vci-inbox', 'lanes/lgt/inbox/' + i['name']) for i in items
+                  if i['name'].startswith('TASK-')]
+    st, items = api('GET', 'contents/inbox', repo='chepin-ai/vci-lgt')
+    if st == 200:
+        cands += [('chepin-ai/vci-lgt', 'inbox/' + i['name']) for i in items
+                  if i['name'].startswith('TASK-')]
+    done = state.get('task_done', [])
+    pubok = ('chepin-ai/vci-usrm', 'chepin-ai/vci-inbox', 'chepin-ai/vci-lgt',
+             'chepin-ai/lgt-worker-01', 'chepin-ai/ci-inbox')
+    for rp, path in cands:
+        if path in done:
+            continue
+        stj, _ = get_file(path, repo=rp)
+        if not stj:
+            continue
+        try:
+            card = json.loads(stj)
+        except Exception:
+            m3 = re.search(r'```json\s*(\{.*?\})\s*```', stj, re.S)
+            try:
+                card = json.loads(m3.group(1)) if m3 else {}
+            except Exception:
+                card = {}
+        if not isinstance(card, dict):
+            card = {}
+        frm = card.get('from', '')
+        tid = card.get('task', path.split('/')[-1])
+        act = (card.get('action') or '')
+        verdict = '收执·钉债档候SI1席判'
+        if TOK_X and frm:
+            did = ''
+            inp = (card.get('inputs') or {})
+            op = (card.get('output') or '')
+            if ('直发' in act or 'fetch' in tid.lower()) and str(inp.get('file', '')).startswith('research/') and op:
+                repo_m = re.match(r'(chepin-ai/[\w\-]+)/', op) or re.match(r'(vci-[\w\-]+|ci-inbox|lgt-worker-01)/', op)
+                if repo_m and (repo_m.group(1) in pubok or ('chepin-ai/'+repo_m.group(1)) in pubok):
+                    src, _s2 = get_file(inp['file'], repo=HOME)  # research/正本在HOME
+                    if src is not None:
+                        st3, _r3 = api('PUT', 'contents/' + urllib.parse.quote(op),
+                                       {'message': 'TASK %s fetch直发(lgt塔task腿)' % tid,
+                                        'content': base64.b64encode(src.encode()).decode()},
+                                       repo=repo_m.group(1) if repo_m.group(1).startswith('chepin-ai/') else 'chepin-ai/'+repo_m.group(1), write=True)
+                        if st3 in (200, 201):
+                            did = 'fetch直办讫→' + op
+                            verdict = did
+            body = ('**CLASSIFY: L1(联邦机器邮·lgt塔task腿机答·非判词)**\n\n'
+                    'TASK `%s` 收执即答： %s。\n卡: `%s`\n'
+                    '席判级钉债档候SI1醒拍覆写(互纠②)。#noauto ——lgt塔(SI2) %s') % (tid, verdict, path, ts)
+            st4, _r4 = api('PUT', 'contents/lanes/%s/inbox/TASKACK-%s-%s.md' % (frm, tid.replace('/', '_'), ts),
+                           {'message': 'TASKACK %s [task-leg]' % tid,
+                            'content': base64.b64encode(body.encode()).decode()},
+                           repo='chepin-ai/vci-inbox', write=True)
+            if st4 in (200, 201):
+                out['done'].append('%s→%s(%s)' % (tid, frm, verdict[:40]))
+        done.append(path)
+    state['task_done'] = done[-100:]
+    return out, state
+
+
+def octo_leg(state, ts):
+    """v3.6八面轮扫补面腿(OCTO-SCAN-01全形): ①板面差(BI公告板尖)②毂塔尖(vci-cfts尖)③各线receipts尖(usrm/lvlu)
+    ④NONCE册(REPO ci/FINDING-NONCE*)⑤讨论室threads尖⑥QSET庭尖(BI disc QSET)⑦W12t(PUB actions runs)⑧session-circle陈腐显形(>2拍未导→债档提SI1)。
+    感录差集入receipt;全public/自仓面TOK_R免PAT。"""
+    out = {}
+    st, items = api('GET', 'contents/公告板', repo='chepin-ai/ci-inbox')
+    if st == 200:
+        names = sorted(i['name'] for i in items if i['name'].endswith('.md'))
+        prev = state.get('octo_board', [])
+        new = [n for n in names if n not in set(prev)]
+        out['board_tip'] = names[-3:]
+        out['board_new_n'] = len(new)
+        state['octo_board'] = (prev + [n for n in new if n not in set(prev)])[-1500:]
+    st, j = api('GET', '', repo='chepin-ai/vci-cfts')
+    if st == 200:
+        out['hub_tip'] = j.get('pushed_at', '')
+    for ln in ('usrm', 'lvlu'):
+        st, items = api('GET', 'contents/receipts', repo='chepin-ai/vci-' + ln)
+        if st == 200:
+            ds = sorted((i['name'] for i in items if i['type'] == 'dir'), reverse=True)
+            out['receipts_%s' % ln] = ds[:2]
+    st, items = api('GET', 'contents/ci', repo=HOME)  # NONCE专册在HOME
+    if st == 200:
+        nc = [i['name'] for i in items if i['name'].startswith('FINDING-NONCE')]
+        out['nonce_book_n'] = len(nc)
+    st, items = api('GET', 'contents/讨论室/threads', repo='chepin-ai/ci-inbox')
+    if st == 200:
+        th = sorted(i['name'] for i in items if i['name'].endswith('.md'))
+        prev2 = state.get('octo_disc', [])
+        new2 = [n for n in th if n not in set(prev2)]
+        out['disc_new'] = new2[-10:]
+        state['octo_disc'] = (prev2 + [n for n in new2 if n not in set(prev2)])[-400:]
+    st, items = api('GET', 'contents/disc', repo='chepin-ai/ci-inbox')
+    if st == 200:
+        out['qset_n'] = len([i['name'] for i in items if 'QSET' in i['name'].upper()])
+    st, j = api('GET', 'actions/runs?per_page=3')
+    if st == 200:
+        out['w12t_runs'] = [{'n': r.get('name'), 'c': r.get('conclusion')} for r in j.get('workflow_runs', [])[:3]]
+    st, items = api('GET', 'contents/session-circle/lgt', repo='chepin-ai/ci-inbox')
+    if st == 200:
+        beats = sorted(i['name'] for i in items if i['name'].startswith('beat-'))
+        out['circle_last'] = beats[-1] if beats else 'NONE'
+    return out, state
+
+
 def main():
     ts = datetime.datetime.utcnow().strftime('%Y%m%dT%H%M%SZ')
     stj, _ = get_file('receipts/tower/state.json')
@@ -634,9 +793,13 @@ def main():
         put_file('receipts/tower/debts-LGT-TOWER-01.json', json.dumps(dj3, ensure_ascii=False, indent=1),
                  dsha3, '[skip ci] tower debts shadow/degrade +%d (v3.5)' % (len(drive.get('shadow_alerts', [])) + len(drive.get('degrade', []))))
     autoask, state = autoask_leg(state, drive)  # v3.4 直问自铸腿
-    receipt = {'v': 'LGT-TOWER-01 v3.5.0', 'ts': ts, 'idle_in': state.get('idle', 0),
+    finding, state = finding_leg(state, ts)  # v3.6 finding轮扫腿(候字三态阶梯)
+    taskr, state = task_leg(state, ts)  # v3.6 机读TASK道消费腿
+    octo, state = octo_leg(state, ts)  # v3.6 八面轮扫补面腿
+    receipt = {'v': 'LGT-TOWER-01 v3.6.0', 'ts': ts, 'idle_in': state.get('idle', 0),
                'events': events, 'verdict_memo': memo[:2000],
-               'si2_ack': acks, 'spark_hook': spark, 'drive': drive, 'autoask': autoask, 'debt': ''}
+               'si2_ack': acks, 'spark_hook': spark, 'drive': drive, 'autoask': autoask,
+               'finding': finding, 'task_leg': taskr, 'octo': octo, 'debt': ''}
     if acks:  # SI1深判债档桥: 回执件同挂debts档候SI1醒拍
         old_d, dsha = get_file('receipts/tower/debts-LGT-TOWER-01.json')
         dj = json.loads(old_d) if old_d else {'v': 'TOWER-DEBTS-01', 'items': []}
