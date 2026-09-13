@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# LGT-TOWER-01 v2.1 — lgt线SI0塔（塔范式第七器·MUTUAL-IGNITE-01 环之候足→今环闭）
+# LGT-TOWER-01 v3.5 — lgt线SI0塔（塔范式第七器·MUTUAL-IGNITE-01 环之候足→今环闭）
 # 五律: 零定时器 / 自级联(候件非空→拍内冷却→自POST dispatch) / 防自激三律 / 钥在仓 / 拍尾生债
 # 第四件: SPARK-HOOK 互级联钩(LAW-SPARK-01 §三)——每拍≤1发/候线豁免/发即报备
 # v2 借形(cfts修课二+BOARD-VOICE-01, 2026-09-08 V-87):
@@ -518,6 +518,99 @@ def autoask_leg(state, drive):
     if not sent and not out.get('fail'): out['skip'] = '环俱静(销/冷却/内环)'
     return out, state
 
+def drive_leg(state):
+    """v3.3 DRIVE-LOOP-LGT-01 感录腿(废候立驱): ①我双巷收件集 ②我投他线巷件存续探(在架=未消费)→需求单。
+    探面=vci-inbox lanes各巷+vci-usrm/inbox+vci-lgt/inbox(皆public,TOK_R免PAT); 直问铸投归SI0席(钥分轨)。
+    环表=docs/DRIVE-LOOP-LGT-01 §五; 本腿只感录不代答——感单入回执,SI0拍首消费。
+    v3.5(V-125, KEY-ROOTCAUSE-LGT-01根因①之修): shadow差集警报+钥亡警降级链——
+      ①state['shadow_seen']跨拍存续(截尾200), vci-lgt/inbox差集=新件→shadow_alerts(挂债档,SI1醒拍必见);
+      ②各面st∈(401,403)→degrade账(钥亡警:面+码,降级面续巡不盲,DEGRADE-CHAIN-01入码)。"""
+    out = {'inbox_recent': [], 'shadow_inbox': [], 'shadow_alerts': [], 'outbox_alive': [], 'degrade': [], 'probe_ts': ''}
+    seen = state.get('shadow_seen', [])
+    st, items = api('GET', 'contents/lanes/lgt/inbox', repo='chepin-ai/vci-inbox')
+    if st == 200:
+        out['inbox_recent'] = [i['name'] for i in items[-12:] if i['name'] != '.gitkeep']
+    elif st in (401, 403):
+        out['degrade'].append('lanes/lgt/inbox st=%d 钥亡警' % st)
+    st, items = api('GET', 'contents/inbox', repo='chepin-ai/vci-lgt')
+    if st == 200:
+        cur = [i['name'] for i in items if i['name'] != '.gitkeep']
+        out['shadow_inbox'] = cur[-8:]
+        newones = [n for n in cur if n not in seen]
+        if seen and newones:
+            out['shadow_alerts'] = newones
+        state['shadow_seen'] = (seen + [n for n in newones if n not in seen])[-200:]
+    elif st in (401, 403):
+        out['degrade'].append('vci-lgt/inbox st=%d 钥亡警' % st)
+    for ln in ('usrm', 'ucif2', 'qfa', 'lvlu', 'qgl', 'cfts'):
+        st, items = api('GET', 'contents/lanes/%s/inbox' % ln, repo='chepin-ai/vci-inbox')
+        if st == 200:
+            mine = [i['name'] for i in items
+                    if ('LGT' in i['name'] or '-lgt-' in i['name'].lower())]
+            for m in mine[-6:]:
+                out['outbox_alive'].append('%s/inbox/%s' % (ln, m))
+        elif st in (401, 403):
+            out['degrade'].append('lanes/%s/inbox st=%d 钥亡警' % (ln, st))
+    st, items = api('GET', 'contents/inbox', repo='chepin-ai/vci-usrm')
+    if st == 200:
+        mine = [i['name'] for i in items if ('LGT' in i['name'] or '-lgt-' in i['name'].lower())]
+        for m in mine[-6:]:
+            out['outbox_alive'].append('vci-usrm/inbox/%s' % m)
+    elif st in (401, 403):
+        out['degrade'].append('vci-usrm/inbox st=%d 钥亡警' % st)
+    out['probe_ts'] = datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%MZ')
+    return out, state
+
+def autoask_leg(state, drive):
+    """v3.4 直问自铸腿(DRIVE-LOOP-LGT-01 SI2形): 环表(recstate/drive-rings.json,PUB档)逐环——
+    open∧冷却过(日线1,NUDGE帽株廿一)→自铸直问件投对象巷(vci-inbox,TOK_X写)→state记戳。
+    闸: 每拍≤2件/线≤1∧idem(环id+日戳)∧TOK_X缺则录而不发(钥分轨诚实)∧件文载机读位格(非SI1判词)。"""
+    out = {'asked': [], 'skip': ''}
+    if not TOK_X:
+        out['skip'] = 'TOK_X未配(候CI_OPS_LINE_KEY)——录而不发'; return out, state
+    stj, _ = get_file('recstate/drive-rings.json')
+    if not stj:
+        out['skip'] = '环表档未铸'; return out, state
+    try: rings = json.loads(stj).get('rings', [])
+    except Exception:
+        out['skip'] = '环表档异'; return out, state
+    asked = state.get('autoask', {})
+    today = datetime.datetime.utcnow().strftime('%Y%m%d')
+    sent = 0
+    for rg in rings:
+        if sent >= 2: break
+        if rg.get('state') != 'open': continue
+        tgt = rg.get('target', '')
+        if not tgt or tgt == '(内)': continue
+        if asked.get(tgt, '') >= today: continue
+        idem = 'autoask#%s#%s' % (rg['id'], today)
+        if idem in state.get('acked', []): continue
+        body = ('**CLASSIFY: L1(联邦机器邮·lgt塔drive环自动直问·非判词)**\n\n'
+                '环 `%s`(%s)未得之直问——DRIVE-LOOP-LGT-01 在役: %s。\n'
+                '探面已巡(lanes/公告板/影子仓),尔件若已投请指址;未投请件。\n'
+                '#noauto ——lgt塔(SI2自铸) %s') % (
+                rg['id'], rg.get('subject', ''), rg.get('retire', ''),
+                datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%MZ'))
+        st, _r = api('PUT', 'contents/lanes/%s/inbox/AUTOASK-%s-%s.md' % (tgt, rg['id'], today),  # v3.4.2: contents创建=PUT(POST则404——实测)
+                     {'message': 'AUTOASK %s [drive-loop]' % rg['id'],
+                      'content': base64.b64encode(body.encode()).decode()},
+                     repo='chepin-ai/vci-inbox')  # v3.4: 用TOK_R(CI_OPS_LINE_KEY优先,全网写权;闸已验TOK_X在)
+        if st in (200, 201):
+            out['asked'].append(rg['id'] + '->' + tgt)
+        elif st == 422:
+            out['asked'].append(rg['id'] + '->' + tgt + '(在架)')
+            asked[tgt] = today
+            state['acked'] = sorted(set(state.get('acked', [])) | {idem})
+            sent += 1
+        else:
+            out.setdefault('fail', []).append('%s->%s st=%s' % (rg['id'], tgt, st))
+            asked[tgt] = today
+            state['acked'] = sorted(set(state.get('acked', [])) | {idem})
+            sent += 1
+    state['autoask'] = asked
+    if not sent and not out.get('fail'): out['skip'] = '环俱静(销/冷却/内环)'
+    return out, state
+
 def main():
     ts = datetime.datetime.utcnow().strftime('%Y%m%dT%H%M%SZ')
     stj, _ = get_file('receipts/tower/state.json')
@@ -527,9 +620,21 @@ def main():
     acks, acked = respond(events, state) if events else ([], state.get('acked', []))  # v2.6 SI2即时响应腿
     memo = kimi_work(events) if events else ''
     spark = spark_hook(events, state) if events else None
-    drive = drive_leg(state)  # v3.3 废候立驱感录腿
+    drive, state = drive_leg(state)  # v3.3 废候立驱感录腿(v3.5差集警报+降级链)
+    if drive.get('shadow_alerts') or drive.get('degrade'):  # v3.5 差集/钥亡警→债档桥(SI1醒拍必见)
+        old_d3, dsha3 = get_file('receipts/tower/debts-LGT-TOWER-01.json')
+        dj3 = json.loads(old_d3) if old_d3 else {'v': 'TOWER-DEBTS-01', 'items': []}
+        for n in drive.get('shadow_alerts', []):
+            dj3['items'].append({'ts': ts, 'to': 'lgt-SI1', 'ack': 'vci-lgt/inbox/' + n, 'n': 1,
+                                 'status': 'shadow差集新件·候SI1醒拍收执(覆写权在席)'})
+        for g in drive.get('degrade', []):
+            dj3['items'].append({'ts': ts, 'to': 'lgt-SI1', 'ack': g, 'n': 1,
+                                 'status': '钥亡警(SCAN-OWN-KEYS-01步③)·降级面续巡'})
+        dj3['items'] = dj3['items'][-200:]
+        put_file('receipts/tower/debts-LGT-TOWER-01.json', json.dumps(dj3, ensure_ascii=False, indent=1),
+                 dsha3, '[skip ci] tower debts shadow/degrade +%d (v3.5)' % (len(drive.get('shadow_alerts', [])) + len(drive.get('degrade', []))))
     autoask, state = autoask_leg(state, drive)  # v3.4 直问自铸腿
-    receipt = {'v': 'LGT-TOWER-01 v3.4.3', 'ts': ts, 'idle_in': state.get('idle', 0),
+    receipt = {'v': 'LGT-TOWER-01 v3.5.0', 'ts': ts, 'idle_in': state.get('idle', 0),
                'events': events, 'verdict_memo': memo[:2000],
                'si2_ack': acks, 'spark_hook': spark, 'drive': drive, 'autoask': autoask, 'debt': ''}
     if acks:  # SI1深判债档桥: 回执件同挂debts档候SI1醒拍
