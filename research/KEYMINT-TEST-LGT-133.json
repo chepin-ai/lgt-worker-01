@@ -1,0 +1,49 @@
+{
+ "doc": "KEYMINT-TEST-LGT-133",
+ "ts": "20260914T183848Z",
+ "line": "lgt",
+ "protocol": "借 qgl QGL-KEY-MINT-REQ-01 第肆章七测 + 我线增 T8 恢复演练",
+ "results": {
+  "T1_sign_verify_loop": true,
+  "T2_fp_consistency": true,
+  "T3_wrong_key_reject": true,
+  "T4_tamper_reject": true,
+  "T5_entropy": {
+   "LGT_HMAC_SK": {
+    "monobit": 1.25,
+    "runs": 1.137
+   },
+   "LGT_OTP_POOL_SK": {
+    "monobit": 0.875,
+    "runs": 0.832
+   },
+   "LGT_RECOVERY_ROT": {
+    "monobit": 0.75,
+    "runs": 1.265
+   }
+  },
+  "T6_otp_derive": true,
+  "T7_rail_probe": {
+   "repo": "vci-lgt",
+   "rail": "AI-FullScope（FINE 不请 Secrets 权——最小权界设计如此，非缺陷）",
+   "pubkey": 200,
+   "put": 201,
+   "meta": 200,
+   "meta_updated": "2026-09-14T18:44:21Z",
+   "delete": 204,
+   "post_get": 404,
+   "nonce_fp": "8fac4cafec07（值已焚）"
+  },
+  "T8_heal_drill": {
+   "scenario": "抹 env 拟内核复位/$HOME 回收",
+   "needed": true,
+   "possible": true,
+   "healed": true,
+   "probe": 200,
+   "env_restored": true,
+   "L_fp_after": true
+  }
+ },
+ "verdict": "T1~T8 全证【证】",
+ "entropy_note": "n=256bit 小样 z 检（qgl 协议同口径 z<3.5），大样判留予轮换期"
+}

@@ -1,0 +1,26 @@
+{
+ "doc": "KEY-FINGERPRINT-LGT-01",
+ "ts": "20260914T183848Z",
+ "line": "lgt",
+ "law": "值零入册，唯 sha256[:12]",
+ "L_class": {
+  "LGT_HMAC_SK": {
+   "fp": "634bf68e7074",
+   "days": 90,
+   "use": "线内receipt/镜档签名互验（联邦 waves 免值指纹之本地信任根）"
+  },
+  "LGT_OTP_POOL_SK": {
+   "fp": "322104a0c413",
+   "days": 180,
+   "use": "OTP 池派生根（一次性令签，域分隔确定性派生）"
+  },
+  "LGT_RECOVERY_ROT": {
+   "fp": "192205169b0d",
+   "days": 360,
+   "use": "恢复轨轮换钥（heal 链之钥事件封印）"
+  }
+ },
+ "recovery_pk_fp": "ee8908707ac8",
+ "anchor": "/mnt/agents/seal-lgt/（持久域·非仓·永不推送）",
+ "rotation": "寿期满=著新值同名替换+旧签验窗24h+废旧（钥事件入册）"
+}

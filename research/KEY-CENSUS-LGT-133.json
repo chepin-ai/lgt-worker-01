@@ -1,0 +1,306 @@
+{
+ "doc": "KEY-CENSUS-LGT-133",
+ "ts": "20260914T183848Z",
+ "line": "lgt",
+ "rail": "AI-FullScope(C1共用备钥·降级链第二级·名级元数据唯一合法证面)",
+ "law": "名+updated_at 元数据普查，值零参与（API 亦不吐值）",
+ "repos": {
+  "chepin-ai/lgt-line": [
+   {
+    "name": "AI_FULL_PAT",
+    "updated_at": "2026-09-11T20:18:18Z"
+   },
+   {
+    "name": "BI_FULL_TOKEN",
+    "updated_at": "2026-09-09T06:01:03Z"
+   },
+   {
+    "name": "CI_OPS_LINE_KEY",
+    "updated_at": "2026-09-12T23:36:46Z"
+   },
+   {
+    "name": "GH_FULL_TOKEN",
+    "updated_at": "2026-09-09T05:45:18Z"
+   },
+   {
+    "name": "GITEE_MIRROR_TOKEN",
+    "updated_at": "2026-09-09T06:01:06Z"
+   },
+   {
+    "name": "GITEE_PASSWORD",
+    "updated_at": "2026-09-09T03:53:12Z"
+   },
+   {
+    "name": "GITEE_TOK",
+    "updated_at": "2026-09-10T23:03:58Z"
+   },
+   {
+    "name": "IBMQ_PASSWORD",
+    "updated_at": "2026-09-09T03:53:13Z"
+   },
+   {
+    "name": "KIMI_API_KEY",
+    "updated_at": "2026-09-10T23:03:59Z"
+   },
+   {
+    "name": "LGT_SK",
+    "updated_at": "2026-09-10T22:36:44Z"
+   },
+   {
+    "name": "LINE_PAT",
+    "updated_at": "2026-09-12T23:36:47Z"
+   },
+   {
+    "name": "MAIL163_PASSWORD",
+    "updated_at": "2026-09-09T03:53:13Z"
+   },
+   {
+    "name": "OPENQUANTUM_API_KEY",
+    "updated_at": "2026-09-09T03:53:14Z"
+   },
+   {
+    "name": "OPENQUANTUM_CLIENT_ID",
+    "updated_at": "2026-09-09T03:53:15Z"
+   },
+   {
+    "name": "ORIGINQC_API_KEY",
+    "updated_at": "2026-09-09T03:53:16Z"
+   },
+   {
+    "name": "ORIGINQC_API_KEY_FOXMAIL",
+    "updated_at": "2026-09-09T03:53:16Z"
+   },
+   {
+    "name": "ORIGINQC_API_KEY_SPARE",
+    "updated_at": "2026-09-09T03:53:17Z"
+   },
+   {
+    "name": "ORIGINQC_API_KEY_THAI68",
+    "updated_at": "2026-09-09T03:53:18Z"
+   },
+   {
+    "name": "ORIGINQC_PASSWORD",
+    "updated_at": "2026-09-09T03:53:18Z"
+   },
+   {
+    "name": "ORIGINQC_UID",
+    "updated_at": "2026-09-09T03:53:19Z"
+   },
+   {
+    "name": "QI_FULL_TOKEN",
+    "updated_at": "2026-09-09T06:01:05Z"
+   },
+   {
+    "name": "QUAFU_API_KEY",
+    "updated_at": "2026-09-09T03:53:20Z"
+   },
+   {
+    "name": "QUAFU_PASSWORD",
+    "updated_at": "2026-09-09T03:53:21Z"
+   },
+   {
+    "name": "QUANTUMRINGS_API_KEY_128",
+    "updated_at": "2026-09-09T03:53:21Z"
+   },
+   {
+    "name": "QUANTUMRINGS_API_KEY_64",
+    "updated_at": "2026-09-09T03:53:22Z"
+   },
+   {
+    "name": "TENCENT_CLOUD_SECRET_ID",
+    "updated_at": "2026-09-09T03:53:23Z"
+   },
+   {
+    "name": "TENCENT_CLOUD_SECRET_KEY",
+    "updated_at": "2026-09-09T03:53:23Z"
+   },
+   {
+    "name": "TIANYAN_API_KEY",
+    "updated_at": "2026-09-09T03:53:24Z"
+   },
+   {
+    "name": "TIANYAN_PASSWORD",
+    "updated_at": "2026-09-09T03:53:25Z"
+   }
+  ],
+  "chepin-ai/lgt-worker-01": [
+   {
+    "name": "AI_FULL_PAT",
+    "updated_at": "2026-09-13T17:10:55Z"
+   },
+   {
+    "name": "CI_OPS_LINE_KEY",
+    "updated_at": "2026-09-12T23:36:43Z"
+   },
+   {
+    "name": "KIMI_API_KEY",
+    "updated_at": "2026-09-12T15:37:00Z"
+   },
+   {
+    "name": "LGT_SK_V4",
+    "updated_at": "2026-09-11T02:45:39Z"
+   },
+   {
+    "name": "LINE_PAT",
+    "updated_at": "2026-09-12T23:36:44Z"
+   }
+  ],
+  "chepin-ai/ci-inbox": [
+   {
+    "name": "AI_FULL_PAT",
+    "updated_at": "2026-09-12T10:33:58Z"
+   },
+   {
+    "name": "CI_OPS_HUB_ID",
+    "updated_at": "2026-09-05T15:11:32Z"
+   },
+   {
+    "name": "CI_OPS_HUB_KEY",
+    "updated_at": "2026-09-11T21:20:07Z"
+   },
+   {
+    "name": "CI_OPS_LINE_KEY",
+    "updated_at": "2026-09-09T02:06:53Z"
+   },
+   {
+    "name": "CMD_AUTH",
+    "updated_at": "2026-09-09T06:27:58Z"
+   },
+   {
+    "name": "FORMAFLOW_CMD_AUTH",
+    "updated_at": "2026-09-09T08:32:06Z"
+   },
+   {
+    "name": "LINE_PAT",
+    "updated_at": "2026-09-12T18:39:35Z"
+   },
+   {
+    "name": "OTP_PHONE",
+    "updated_at": "2026-09-07T04:56:54Z"
+   }
+  ],
+  "chepin-ai/vci-inbox": [
+   {
+    "name": "AI_FULL_PAT",
+    "updated_at": "2026-09-12T10:33:57Z"
+   },
+   {
+    "name": "CI_OPS_HUB_KEY",
+    "updated_at": "2026-09-11T21:20:08Z"
+   },
+   {
+    "name": "CI_OPS_LINE_KEY",
+    "updated_at": "2026-09-11T21:19:47Z"
+   },
+   {
+    "name": "CMD_AUTH",
+    "updated_at": "2026-09-09T06:28:00Z"
+   },
+   {
+    "name": "DEEPSEEK_API_KEY_VCI1",
+    "updated_at": "2026-09-07T04:57:03Z"
+   },
+   {
+    "name": "DEEPSEEK_API_KEY_VCI2",
+    "updated_at": "2026-09-07T04:57:04Z"
+   },
+   {
+    "name": "DEEPSEEK_API_KEY_VCI3",
+    "updated_at": "2026-09-07T04:57:06Z"
+   },
+   {
+    "name": "FORMAFLOW_CMD_AUTH",
+    "updated_at": "2026-09-09T08:32:09Z"
+   },
+   {
+    "name": "GUARD_APP_KEY",
+    "updated_at": "2026-08-22T23:09:01Z"
+   },
+   {
+    "name": "KIMI_API_KEY_VCI1",
+    "updated_at": "2026-09-07T04:57:02Z"
+   },
+   {
+    "name": "KIMI_API_KEY_VCI2",
+    "updated_at": "2026-09-07T04:57:04Z"
+   },
+   {
+    "name": "KIMI_API_KEY_VCI3",
+    "updated_at": "2026-09-07T04:57:05Z"
+   },
+   {
+    "name": "LINE_PAT",
+    "updated_at": "2026-09-12T18:39:40Z"
+   },
+   {
+    "name": "LONGCAT_AK_N1",
+    "updated_at": "2026-09-07T04:57:10Z"
+   },
+   {
+    "name": "LONGCAT_AK_N2",
+    "updated_at": "2026-09-07T04:57:11Z"
+   },
+   {
+    "name": "LONGCAT_AK_N3",
+    "updated_at": "2026-09-07T04:57:11Z"
+   },
+   {
+    "name": "LONGCAT_AK_N4",
+    "updated_at": "2026-09-07T04:57:12Z"
+   },
+   {
+    "name": "LONGCAT_AK_N5",
+    "updated_at": "2026-09-07T04:57:13Z"
+   },
+   {
+    "name": "LONGCAT_SK_N4",
+    "updated_at": "2026-09-07T04:57:08Z"
+   },
+   {
+    "name": "LONGCAT_SK_N5",
+    "updated_at": "2026-09-07T04:57:09Z"
+   },
+   {
+    "name": "NODE_SK_N4",
+    "updated_at": "2026-09-07T04:57:07Z"
+   },
+   {
+    "name": "NODE_SK_N5",
+    "updated_at": "2026-09-07T04:57:08Z"
+   },
+   {
+    "name": "OTP_PHONE",
+    "updated_at": "2026-09-07T04:56:51Z"
+   }
+  ],
+  "chepin-ai/vci-lgt": [
+   {
+    "name": "AI_FULL_PAT",
+    "updated_at": "2026-09-11T21:20:10Z"
+   },
+   {
+    "name": "CI_OPS_LINE_KEY",
+    "updated_at": "2026-09-12T23:36:49Z"
+   },
+   {
+    "name": "GITEE_TOK",
+    "updated_at": "2026-09-10T23:03:57Z"
+   },
+   {
+    "name": "KIMI_API_KEY",
+    "updated_at": "2026-09-10T23:03:58Z"
+   },
+   {
+    "name": "LINE_PAT",
+    "updated_at": "2026-09-12T23:36:50Z"
+   }
+  ]
+ },
+ "crosscheck": {
+  "KQ-01": "vci-lgt+lgt-worker-01 皆载 KIMI_API_KEY ✓ 塔迁用已在钥即闭",
+  "KQ-02": "GITEE_TOK 在 vci-lgt 册 2026-09-10T23:03:57Z ✓ 试推=我线事（探机本拍落成）",
+  "KQ-03": "LGT_SK_V4 在 lgt-worker-01 册 2026-09-11T02:45:39Z ✓ 闭·V2 不重请",
+  "KQ-04": "CI_OPS_LINE_KEY 在 lgt-worker-01 册 2026-09-12T23:36:43Z ✓ 闭"
+ },
+ "note": "chepin-ai/lgt-line 29 件含量子平台五家钥（ORIGINQC×5/QUAFU×2/IBMQ/QUANTUMRINGS×2/OPENQUANTUM×2）——QRAND 判据三案A 候 root 注本源钥之坐标复核在册"
+}
