@@ -1,0 +1,40 @@
+# REALCHIP-LGT-01 · lgt 真机单次发射轨（公塔面·本源机时纪律逐字守）
+# 无 schedule/无 cron；唯 workflow_dispatch 手动单次。仿真预验为闸，单次批量提交，零重试。
+# 私仓 Actions 因账户计费停摆（20260923 实证），公塔为唯一合法 CI 驿；钥候 root 注入 PUB secrets。
+name: realchip-lgt-01
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: '单次发射确认(填 FIRE)'
+        required: true
+        default: ''
+permissions:
+  contents: write
+jobs:
+  realchip:
+    if: ${{ github.event.inputs.confirm == 'FIRE' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: setup python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: install pyqpanda
+        run: pip install -q -i https://pypi.org/simple pyqpanda
+      - name: single batch real-chip run (zero-retry law)
+        env:
+          ORIGINQC_TOKEN: ${{ secrets.ORIGINQC_API_KEY }}
+          ORIGINQC_TOKEN_2: ${{ secrets.ORIGINQC_API_KEY_FOXMAIL }}
+          ORIGINQC_TOKEN_3: ${{ secrets.OPENQUANTUM_API_KEY }}
+          ORIGINQC_TOKEN_4: ${{ secrets.ORIGINQC_API_KEY_SPARE }}
+        run: python3 ci/realchip_lgt_01.py
+      - name: commit receipt
+        run: |
+          git config user.name "lgt-realchip"
+          git config user.email "lgt-realchip@users.noreply.github.com"
+          git add receipts/ || true
+          git commit -m "REALCHIP-LGT-01 receipt $(date -u +%Y%m%dT%H%M%SZ)" || true
+          git push || true
