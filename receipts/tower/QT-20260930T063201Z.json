@@ -1,0 +1,59 @@
+{
+ "v": "LGT-TOWER-01 v3.6.1",
+ "ts": "20260930T063201Z",
+ "idle_in": 0,
+ "events": [],
+ "verdict_memo": "",
+ "si2_ack": [],
+ "spark_hook": null,
+ "drive": {
+  "inbox_recent": [],
+  "shadow_inbox": [],
+  "shadow_alerts": [],
+  "outbox_alive": [],
+  "degrade": [
+   "lanes/lgt/inbox st=403 钥亡警",
+   "vci-lgt/inbox st=403 钥亡警",
+   "lanes/usrm/inbox st=403 钥亡警",
+   "lanes/ucif2/inbox st=403 钥亡警",
+   "lanes/qfa/inbox st=403 钥亡警",
+   "lanes/lvlu/inbox st=403 钥亡警",
+   "lanes/qgl/inbox st=403 钥亡警",
+   "lanes/cfts/inbox st=403 钥亡警",
+   "vci-usrm/inbox st=403 钥亡警"
+  ],
+  "probe_ts": "2026-09-30T06:32Z"
+ },
+ "autoask": {
+  "asked": [],
+  "skip": "环表档未铸"
+ },
+ "finding": {
+  "nudged": [],
+  "armed": 0,
+  "skip": "registry未铸"
+ },
+ "task_leg": {
+  "done": [],
+  "skip": ""
+ },
+ "octo": {},
+ "debt": "issues道回执1件(候SI1深判)",
+ "forum": {
+  "forum_ack": [
+   {
+    "issue": 2,
+    "to": "chepin-ai"
+   }
+  ],
+  "forum_skip": ""
+ },
+ "sealed": {
+  "sealed_done": [],
+  "sealed_skip": "无事件不巡"
+ },
+ "si3_patrol": {
+  "renudge_sent": [],
+  "renudge_skip": "open-items.json读取失(404/权·双轨俱败)——记疑下拍再试"
+ }
+}
