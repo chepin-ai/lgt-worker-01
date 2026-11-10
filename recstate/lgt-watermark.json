@@ -1,1 +1,8 @@
-{"v": 231, "ts": "2026-11-06T03:14:00Z", "chain_tail": "fd5faee95038", "net_digest": "c6c7f903bce15555", "ns_v": 231, "actor": "lgt"}
+{
+  "actor": "lgt",
+  "chain_tail": "4e25b9741517",
+  "net_digest": "37fca6511187d293",
+  "ns_v": 232,
+  "ts": "2026-11-10T04:18:49Z",
+  "v": 232
+}
