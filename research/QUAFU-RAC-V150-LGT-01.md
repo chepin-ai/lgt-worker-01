@@ -9,7 +9,7 @@ RETRIEVE run `42755343750` 只读回收 task `91C842B01A238734`，最新实测�
 
 生产代码现拒绝非整数、布尔、字符串、负值及空值 counts；未知任务状态 fail-closed；Completed／Failed／Canceled 后状态回退与 Completed counts 冲突均禁止评分。canonical 键序／空白等价，shots 不符只照实标记，不补成 1024。
 
-离线自证以 512 组确定性随机样本对拍 SciPy Wilson、χ² 生存函数及精确有理数 TV；最大绝对误差分别为 `2.22e-16`、`4.17e-15`、`1.11e-16`。V-149 四路径返回码保持 `0／0／0／1`，恶意输入、终态回退、未知状态、Failed／Canceled 均符合预注册处置，send 标记全程未触发。最终自证脚本 commit `aa03cc4e3f419d47e34de275d9d2a0f78977287c`，证据 commit `c9cd5d4363e6a0265318b77f2d41dfbdc215dead`。
+离线自证以 512 组确定性随机样本对拍 SciPy Wilson、χ² 生存函数及精确有理数 TV；最大绝对误差分别为 `2.22e-16`、`4.17e-15`、`1.11e-16`。V-149 四路径返回码保持 `0／0／0／1`，恶意输入、终态回退、未知状态、Failed／Canceled 均符合预注册处置，send 标记全程未触发。最终自证脚本 commit `aa03cc4e3f419d47e34de275d9d2a0f78977287c`，证据 commit `7e10f30d484d79c6e89f440fe2f2ebce5c1ef8ba`。
 
 ## 独立重建级复算
 
